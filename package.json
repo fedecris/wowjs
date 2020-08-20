@@ -1,0 +1,24 @@
+{
+  "name": "wowjs",
+  "version": "1.0.0",
+  "description": "A port of wow",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fedecris/wowjs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fedecris/wowjs/issues"
+  },
+  "homepage": "https://github.com/fedecris/wowjs#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jsdom": "^16.4.0",
+    "node-fetch": "^2.6.0"
+  }
+}
