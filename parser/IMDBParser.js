@@ -3,6 +3,9 @@ const jsdom = require("jsdom");
 const WebParser = require("./WebParser");
 
 class IMDBParser extends WebParser {
+  static name = "IMDb";
+  static site = "imdb.com";
+
   constructor(url) {
     super();
     this.url = url;
