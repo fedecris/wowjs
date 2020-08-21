@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const fs = require("fs");
 const IMDBParser = require("./parser/IMDBParser");
 const SitesManager = require("./SitesManager");
 
@@ -32,7 +33,16 @@ app.post("/search", urlencodedParser, (req, res) => {
       const targetURL = await resolver.resolve(IMDBParser.site);
       const imdb = new IMDBParser(targetURL);
       await imdb.load();
-      res.send(`${req.body.title} (${req.body.year}): ${imdb.publicScore}`);
+
+      let data = await fs.readFile(`${__dirname}/public/results.html`, "utf8"); // Yes, I know I shouldn't
+      console.log(data);
+      data = data.replace("var_title", req.body.title);
+      data = data.replace("var_year", req.body.year);
+      data = data.replace("var_parser", IMDBParser.name);
+      data = data.replace("var_score", imdb.publicScore);
+
+      // res.send(`${req.body.title} (${req.body.year}): ${imdb.publicScore}`);
+      res.send(data);
     } catch (err) {
       console.error(err);
     }
