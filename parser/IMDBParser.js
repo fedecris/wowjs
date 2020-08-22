@@ -1,27 +1,43 @@
 const fetch = require("node-fetch");
 const jsdom = require("jsdom");
-const WebParser = require("./WebParser");
 
-class IMDBParser extends WebParser {
+class IMDBParser {
   static name = "IMDb";
   static site = "imdb.com";
+  static match = "imdb.com/title/";
 
-  constructor(url) {
-    super();
-    this.url = url;
+  constructor() {
+    this.publicScore = -1;
+    this.publicCount = -1;
   }
 
-  async load() {
+  getName() {
+    return IMDBParser.name;
+  }
+
+  getSite() {
+    return IMDBParser.site;
+  }
+
+  getMatch() {
+    return IMDBParser.match;
+  }
+
+  async load(url) {
     try {
-      const result = await fetch(this.url);
+      const result = await fetch(url);
       const text = await result.text();
       const dom = new jsdom.JSDOM(text);
 
       // Puntaje
-      const element = dom.window.document.querySelector(
+      let element = dom.window.document.querySelector(
         "[itemprop='ratingValue']"
       );
       this.publicScore = element.textContent;
+
+      // Votos
+      element = dom.window.document.querySelector("[itemprop='ratingCount']");
+      this.publicCount = element.textContent;
     } catch (err) {
       console.error(err);
     }

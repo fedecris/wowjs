@@ -29,19 +29,19 @@ app.get("/search", (req, res) => {
 app.post("/search", urlencodedParser, (req, res) => {
   async function doIt() {
     try {
-      const resolver = new SitesManager(req.body.title, req.body.year);
-      const targetURL = await resolver.resolve(IMDBParser.site);
-      const imdb = new IMDBParser(targetURL);
-      await imdb.load();
+      const manager = new SitesManager(req.body.title, req.body.year);
+      const info = await manager.fetchInfo();
 
-      let data = await fs.readFile(`${__dirname}/public/results.html`, "utf8"); // Yes, I know I shouldn't
-      console.log(data);
+      let data = await fs.readFileSync(
+        `${__dirname}/public/results.html`,
+        "utf8"
+      ); // Yes, I know I shouldn't
       data = data.replace("var_title", req.body.title);
       data = data.replace("var_year", req.body.year);
-      data = data.replace("var_parser", IMDBParser.name);
-      data = data.replace("var_score", imdb.publicScore);
+      data = data.replace("var_parser", "IMDb");
+      data = data.replace("var_score", info.publicScore);
+      data = data.replace("var_votes", info.publicCount);
 
-      // res.send(`${req.body.title} (${req.body.year}): ${imdb.publicScore}`);
       res.send(data);
     } catch (err) {
       console.error(err);
