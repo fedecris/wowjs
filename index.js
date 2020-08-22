@@ -39,9 +39,10 @@ app.post("/search", urlencodedParser, (req, res) => {
       data = data.replace("var_title", req.body.title);
       data = data.replace("var_year", req.body.year);
       data = data.replace("var_parser", "IMDb");
-      data = data.replace("var_score", info.publicScore);
-      data = data.replace("var_votes", info.publicCount);
-
+      data = data.replace("var_publicScore", info.publicScore);
+      data = data.replace("var_publicCount", info.publicCount);
+      data = data.replace("var_budget", info.budget);
+      data = data.replace("var_boxOffice", info.boxOffice);
       res.send(data);
     } catch (err) {
       console.error(err);

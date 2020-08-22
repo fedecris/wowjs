@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 const jsdom = require("jsdom");
 const IMDBParser = require("./parser/IMDBParser");
+const WikiParser = require("./parser/WikiParser");
 
 class SitesManager {
   // URL Base de busqueda
@@ -33,10 +34,22 @@ class SitesManager {
   }
 
   async fetchInfo() {
+    // IMDb info
     const imdb = new IMDBParser();
     const imdbURL = await this.resolveFor(imdb);
-    const imdbInfo = await imdb.load(imdbURL);
-    return { publicScore: imdb.publicScore, publicCount: imdb.publicCount };
+    await imdb.parse(imdbURL);
+
+    // Wikipedia info
+    const wiki = new WikiParser();
+    const wikiURL = await this.resolveFor(wiki);
+    await wiki.parse(wikiURL);
+
+    return {
+      publicScore: imdb.publicScore,
+      publicCount: imdb.publicCount,
+      budget: wiki.budget,
+      boxOffice: wiki.boxOffice,
+    };
   }
 }
 

@@ -23,7 +23,7 @@ class IMDBParser {
     return IMDBParser.match;
   }
 
-  async load(url) {
+  async parse(url) {
     try {
       const result = await fetch(url);
       const text = await result.text();
