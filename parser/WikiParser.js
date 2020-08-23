@@ -25,8 +25,20 @@ class WikiParser {
 
   async parse(url) {
     try {
-      this.budget = 30;
-      this.boxOffice = 100;
+      const result = await fetch(url);
+      const text = await result.text();
+      const dom = new jsdom.JSDOM(text);
+
+      const elements = dom.window.document.querySelectorAll("th");
+      for (let i = 0; i < elements.length; i++) {
+        let e = elements[i];
+        if (e.textContent.trim().toLowerCase() == "budget") {
+          this.budget = e.nextSibling.textContent;
+        }
+        if (e.textContent.trim().toLowerCase() == "box office") {
+          this.boxOffice = e.nextSibling.textContent;
+        }
+      }
     } catch (err) {
       console.error(err);
     }
