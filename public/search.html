@@ -1,10 +1,71 @@
 <html>
-  <head></head>
+  <head>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Raleway"
+    />
+    <style>
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-family: "Raleway", sans-serif;
+      }
+    </style>
+  </head>
   <body>
+    <h1 id="titulo">Search for a film</h1>
+    <h3 id="subtitulo"></h3>
     <form action="/search" method="post">
       Title: <input id="title" name="title" value="The Matrix" /> <br />
       Year: <input id="year" name="year" value="1999" /> <br />
-      <input type="submit" value="Enviar" />
+      <input type="button" value="Enviar" onclick="doIt()" />
     </form>
+    <p id="imdbParser">IMDB:</p>
+    <p id="wikiParser">Wiki:</p>
+
+    <script>
+      // Mostrar en pantalla los parsers disponibles
+      async function getParsers() {
+        let subtitulo = document.getElementById("subtitulo");
+        const response = await fetch("/parsers");
+        const data = await response.json();
+        subtitulo.textContent = `${data.score},${data.money}`;
+      }
+      getParsers();
+
+      // Barrer con todos los parsers
+      function doIt() {
+        query("imdbParser", "IMDb");
+        query("wikiParser", "Wikipedia");
+      }
+
+      // Consultar por una pelicula bajo un parser en particular
+      async function query(parserTag, parserName) {
+        document.getElementById(parserTag).textContent = "Consultando...";
+        // Enviar criterio al server
+        const title = document.getElementById("title").value;
+        const year = document.getElementById("year").value;
+        const response = await fetch(
+          `/search/${parserName}?title=${encodeURIComponent(
+            title
+          )}&year=${year}`
+        );
+        // Recuperar data en informar
+        const json = await response.json();
+        if (parserName == "IMDb") {
+          document.getElementById(
+            parserTag
+          ).textContent = `${parserName}: ${json.publicScore} (${json.publicCount} votes) `;
+        } else if (parserName == "Wikipedia") {
+          document.getElementById(
+            parserTag
+          ).textContent = `${parserName}: ${json.budget} budget, ${json.boxOffice} box office `;
+        }
+      }
+    </script>
   </body>
 </html>

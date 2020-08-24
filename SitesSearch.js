@@ -3,7 +3,7 @@ const jsdom = require("jsdom");
 const IMDBParser = require("./parser/IMDBParser");
 const WikiParser = require("./parser/WikiParser");
 
-class SitesManager {
+class SitesSearch {
   // URL Base de busqueda
   static baseURL = "http://www.google.com/search?q=";
 
@@ -15,7 +15,7 @@ class SitesManager {
   async resolveFor(parser) {
     // Armar el enlace de busqueda en Google
     const url =
-      SitesManager.baseURL +
+      SitesSearch.baseURL +
       encodeURIComponent(`${this.title} ${this.year} site:${parser.getSite()}`);
     console.log(url);
     // Intentando resolver enlaces
@@ -32,25 +32,6 @@ class SitesManager {
     console.log(`  Link for ${parser.getName()}: ${resval} `);
     return resval;
   }
-
-  async fetchInfo() {
-    // IMDb info
-    const imdb = new IMDBParser();
-    const imdbURL = await this.resolveFor(imdb);
-    await imdb.parse(imdbURL);
-
-    // Wikipedia info
-    const wiki = new WikiParser();
-    const wikiURL = await this.resolveFor(wiki);
-    await wiki.parse(wikiURL);
-
-    return {
-      publicScore: imdb.publicScore,
-      publicCount: imdb.publicCount,
-      budget: wiki.budget,
-      boxOffice: wiki.boxOffice,
-    };
-  }
 }
 
-module.exports = SitesManager;
+module.exports = SitesSearch;
