@@ -65,50 +65,6 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
   }
 });
 
-// Resultados generales
-app.post("/search", urlencodedParser, (req, res) => {
-  async function doIt() {
-    try {
-      const ss = new SitesSearch(req.body.title, req.body.year);
-      const info = await ss.fetchInfo();
-
-      let data = await fs.readFileSync(
-        `${__dirname}/public/results.html`,
-        "utf8"
-      ); // Yes, I know I shouldn't
-      data = data.replace("var_title", req.body.title);
-      data = data.replace("var_year", req.body.year);
-      data = data.replace("var_parser", "IMDb");
-      data = data.replace("var_publicScore", info.publicScore);
-      data = data.replace("var_publicCount", info.publicCount);
-      data = data.replace("var_budget", info.budget);
-      data = data.replace("var_boxOffice", info.boxOffice);
-      res.send(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-  doIt();
-});
-
-// TODO: Mover
-async function fetchInfo() {
-  // IMDb info
-  const imdbURL = await this.resolveFor(this.imdb);
-  await imdb.parse(imdbURL);
-
-  // Wikipedia info
-  const wikiURL = await this.resolveFor(this.wiki);
-  await wiki.parse(wikiURL);
-
-  return {
-    publicScore: imdb.publicScore,
-    publicCount: imdb.publicCount,
-    budget: wiki.budget,
-    boxOffice: wiki.boxOffice,
-  };
-}
-
 // Ejemplo json === POST /api/users gets JSON bodies ===
 // app.post('/api/users', jsonParser, function (req, res) {
 //     // create user in req.body
