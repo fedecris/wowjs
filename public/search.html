@@ -1,31 +1,85 @@
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Raleway"
+      href="https://fonts.googleapis.com/css?family=Inconsolata"
     />
     <style>
       body,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5 {
-        font-family: "Raleway", sans-serif;
+      html {
+        height: 100%;
+        font-family: "Inconsolata", sans-serif;
+      }
+
+      .bgimg {
+        background-position: center;
+        background-size: cover;
+        background-image: url("/w3images/coffeehouse.jpg");
+        min-height: 75%;
+      }
+
+      .menu {
+        display: none;
       }
     </style>
   </head>
   <body>
-    <h1 id="titulo">Search for a film</h1>
-    <h3 id="subtitulo"></h3>
-    <form action="/search" method="post">
-      Title: <input id="title" name="title" value="The Matrix" /> <br />
-      Year: <input id="year" name="year" value="1999" /> <br />
-      <input type="button" value="Enviar" onclick="doIt()" />
-    </form>
-    <p id="imdbParser">IMDB:</p>
-    <p id="wikiParser">Wiki:</p>
+    <div class="w3-container" id="where" style="padding-bottom: 32px;">
+      <div class="w3-content" style="max-width: 700px;">
+        <h1 id="titulo">Search for a film info</h1>
+        <h3 id="subtitulo"></h3>
+        <form
+          class="w3-input w3-padding-16 w3-border"
+          action="/search"
+          method="post"
+        >
+          <p>
+            Title:
+            <input
+              class="w3-input w3-padding-16 w3-border"
+              id="title"
+              name="title"
+              value="The Matrix"
+            />
+            <br />
+          </p>
+          <p>
+            Year:
+            <input
+              class="w3-input w3-padding-16 w3-border"
+              id="year"
+              name="year"
+              value="1999"
+            />
+            <br />
+          </p>
+          <p>
+            <input
+              class="w3-button w3-black"
+              type="button"
+              value="Enviar"
+              onclick="doIt()"
+            />
+          </p>
+        </form>
+      </div>
+    </div>
+    <div class="w3-container" id="where" style="padding-bottom: 32px;">
+      <div class="w3-content" style="max-width: 700px;">
+        <h3 id="results">Results</h3>
+        <p>
+          <span class="w3-tag">IMDb:</span>
+          <span id="imdbParser">Waiting for a film...</span>
+        </p>
+        <p>
+          <span class="w3-tag">Wikipedia:</span>
+          <span id="wikiParser">Waiting for a film...</span>
+        </p>
+      </div>
+    </div>
 
     <script>
       // Mostrar en pantalla los parsers disponibles
@@ -33,7 +87,7 @@
         let subtitulo = document.getElementById("subtitulo");
         const response = await fetch("/parsers");
         const data = await response.json();
-        subtitulo.textContent = `${data.score},${data.money}`;
+        subtitulo.textContent = `Current sources: ${data.score},${data.money}`;
       }
       getParsers();
 
@@ -45,7 +99,7 @@
 
       // Consultar por una pelicula bajo un parser en particular
       async function query(parserTag, parserName) {
-        document.getElementById(parserTag).textContent = "Consultando...";
+        document.getElementById(parserTag).textContent = "Retrieving info...";
         // Enviar criterio al server
         const title = document.getElementById("title").value;
         const year = document.getElementById("year").value;
