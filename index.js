@@ -44,7 +44,15 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
   const year = req.query.year;
   const parser = getParserFromName(req.params.name);
   const url = await sitesSearch.resolveFor(title, year, parser);
+  if (url == null) {
+    res.json({ parser: parser.getName(), error: "No matches" });
+    return;
+  }
   await parser.parse(url);
+  if (parser.error) {
+    res.json({ parser: parser.getName(), error: parser.error });
+    return;
+  }
   res.json({
     parser: parser.getName(),
     publicScore: parser.publicScore,

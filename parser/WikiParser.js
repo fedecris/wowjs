@@ -40,6 +40,7 @@ class WikiParser {
         }
       }
     } catch (err) {
+      this.error = "Parsing error";
       console.error(err);
     }
   }

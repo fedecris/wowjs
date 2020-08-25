@@ -157,6 +157,9 @@
         if (json.budget) {
           result += ` ${json.budget} budget, ${json.boxOffice} box office `;
         }
+        if (json.error) {
+          result += ` ${json.error} for ${title} (${year})`;
+        }
         document.getElementById(parserTag).textContent = result;
       }
     </script>

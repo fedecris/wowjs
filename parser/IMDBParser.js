@@ -39,6 +39,7 @@ class IMDBParser {
       element = dom.window.document.querySelector("[itemprop='ratingCount']");
       this.publicCount = element.textContent;
     } catch (err) {
+      this.error = "Parsing error";
       console.error(err);
     }
   }
