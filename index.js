@@ -14,15 +14,15 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const imdbParser = new IMDBParser();
 const wikiParser = new WikiParser();
+const sitesSearch = new SitesSearch();
 const parsers = {
-  score: [imdbParser.getName()],
-  money: [wikiParser.getName()],
+  names: [imdbParser.getName(), wikiParser.getName()],
 };
 
-// ============ Pruebas invocacion desde terminal =========
-// const url = process.argv[2];
-// console.log(`Crawling ${url}...`);
-// fetchSites(url);
+function getParserFromName(name) {
+  if (name == imdbParser.getName()) return imdbParser;
+  if (name == wikiParser.getName()) return wikiParser;
+}
 
 // Escuchar
 const port = process.env.PORT || 3000;
@@ -40,32 +40,26 @@ app.get("/search", (req, res) => {
 
 // Resultado de un parser en particular
 app.get("/search/:name", urlencodedParser, async (req, res) => {
-  if (req.params.name == "IMDb") {
-    const title = req.query.title;
-    const year = req.query.year;
-    const ss = new SitesSearch(title, year);
-    const imdbURL = await ss.resolveFor(imdbParser);
-    await imdbParser.parse(imdbURL);
-    res.json({
-      parser: "IMDb",
-      publicScore: imdbParser.publicScore,
-      publicCount: imdbParser.publicCount,
-    });
-  } else if (req.params.name == "Wikipedia") {
-    const title = req.query.title;
-    const year = req.query.year;
-    const ss = new SitesSearch(title, year);
-    const wikiURL = await ss.resolveFor(wikiParser);
-    await wikiParser.parse(wikiURL);
-    res.json({
-      parser: "Wikipedia",
-      budget: wikiParser.budget,
-      boxOffice: wikiParser.boxOffice,
-    });
-  }
+  const title = req.query.title;
+  const year = req.query.year;
+  const parser = getParserFromName(req.params.name);
+  const url = await sitesSearch.resolveFor(title, year, parser);
+  await parser.parse(url);
+  res.json({
+    parser: parser.getName(),
+    publicScore: parser.publicScore,
+    publicCount: parser.publicCount,
+    budget: parser.budget,
+    boxOffice: parser.boxOffice,
+  });
 });
 
 // Ejemplo json === POST /api/users gets JSON bodies ===
 // app.post('/api/users', jsonParser, function (req, res) {
 //     // create user in req.body
 //   })
+
+// ============ Pruebas invocacion desde terminal =========
+// const url = process.argv[2];
+// console.log(`Crawling ${url}...`);
+// fetchSites(url);

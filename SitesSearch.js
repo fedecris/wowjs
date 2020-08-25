@@ -7,16 +7,11 @@ class SitesSearch {
   // URL Base de busqueda
   static baseURL = "http://www.google.com/search?q=";
 
-  constructor(title, year) {
-    this.title = title;
-    this.year = year;
-  }
-
-  async resolveFor(parser) {
+  async resolveFor(title, year, parser) {
     // Armar el enlace de busqueda en Google
     const url =
       SitesSearch.baseURL +
-      encodeURIComponent(`${this.title} ${this.year} site:${parser.getSite()}`);
+      encodeURIComponent(`${title} ${year} site:${parser.getSite()}`);
     console.log(url);
     // Intentando resolver enlaces
     const result = await fetch(url);

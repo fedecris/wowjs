@@ -68,38 +68,78 @@
       </div>
     </div>
     <div class="w3-container" id="where" style="padding-bottom: 32px;">
-      <div class="w3-content" style="max-width: 700px;">
+      <div class="w3-content" id="parsersList" style="max-width: 700px;">
         <h3 id="results">Results</h3>
-        <p>
-          <span class="w3-tag">IMDb:</span>
-          <span id="imdbParser">Waiting for a film...</span>
-        </p>
-        <p>
-          <span class="w3-tag">Wikipedia:</span>
-          <span id="wikiParser">Waiting for a film...</span>
-        </p>
+        <!-- Parser list here (dinamycally loaded) -->
       </div>
     </div>
 
     <script>
+      /** Nomina de parsers */
+      let parsers = null;
+
+      // Agrega un nuevo parser a la lista de parser disponible
+      function appendParsersToDOM(tagID, name) {
+        // Incorporar esto:
+        // <p>
+        //   <span class="w3-tag">IMDb:</span>
+        //   <span id="imdbParser">Waiting for a film...</span>
+        // </p>
+
+        // P
+        let p = document.createElement("p");
+        // Span1
+        let span1 = document.createElement("span");
+        span1.className = "w3-tag";
+        let text1 = document.createTextNode(`${name}:`);
+        span1.appendChild(text1);
+        // Span2
+        let span2 = document.createElement("span");
+        span2.id = tagID;
+        let text2 = document.createTextNode(" Waiting for a film...");
+        span2.appendChild(text2);
+        // Incorporarlo al DOM
+        p.appendChild(span1);
+        p.appendChild(span2);
+        let element = document.getElementById("parsersList");
+        element.appendChild(p);
+      }
+
       // Mostrar en pantalla los parsers disponibles
       async function getParsers() {
-        let subtitulo = document.getElementById("subtitulo");
         const response = await fetch("/parsers");
-        const data = await response.json();
-        subtitulo.textContent = `Current sources: ${data.score},${data.money}`;
+        parsers = await response.json();
+        const subtitulo = document.getElementById("subtitulo");
+        subtitulo.textContent = `Current sources: ${parsers.names}`;
       }
-      getParsers();
+
+      // Carga la info inicial
+      async function loadInfo() {
+        await getParsers();
+        let i = 0;
+        parsers.names.forEach((element) => {
+          let tagID = `parser${i++}`;
+          appendParsersToDOM(tagID, element);
+        });
+      }
+
+      // Cargar la info
+      loadInfo();
+
+      // ===== Funciones relacioandas con la consulta =====
 
       // Barrer con todos los parsers
       function doIt() {
-        query("imdbParser", "IMDb");
-        query("wikiParser", "Wikipedia");
+        let i = 0;
+        parsers.names.forEach((element) => {
+          let tagID = `parser${i++}`;
+          query(tagID, element);
+        });
       }
 
       // Consultar por una pelicula bajo un parser en particular
       async function query(parserTag, parserName) {
-        document.getElementById(parserTag).textContent = "Retrieving info...";
+        document.getElementById(parserTag).textContent = " Retrieving info...";
         // Enviar criterio al server
         const title = document.getElementById("title").value;
         const year = document.getElementById("year").value;
@@ -108,17 +148,16 @@
             title
           )}&year=${year}`
         );
-        // Recuperar data en informar
+        // Recuperar data en informar la eventual informacion contenida
         const json = await response.json();
-        if (parserName == "IMDb") {
-          document.getElementById(
-            parserTag
-          ).textContent = `${parserName}: ${json.publicScore} (${json.publicCount} votes) `;
-        } else if (parserName == "Wikipedia") {
-          document.getElementById(
-            parserTag
-          ).textContent = `${parserName}: ${json.budget} budget, ${json.boxOffice} box office `;
+        let result = "";
+        if (json.publicScore) {
+          result += ` ${json.publicScore} (${json.publicCount} votes) `;
         }
+        if (json.budget) {
+          result += ` ${json.budget} budget, ${json.boxOffice} box office `;
+        }
+        document.getElementById(parserTag).textContent = result;
       }
     </script>
   </body>
