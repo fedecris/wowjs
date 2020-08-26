@@ -6,11 +6,6 @@ class IMDBParser {
   static site = "imdb.com";
   static match = "imdb.com/title/";
 
-  constructor() {
-    this.publicScore = -1;
-    this.publicCount = -1;
-  }
-
   getName() {
     return IMDBParser.name;
   }
@@ -25,6 +20,9 @@ class IMDBParser {
 
   async parse(url) {
     try {
+      this.publicScore = -1;
+      this.publicCount = -1;
+      this.error = null;
       const result = await fetch(url);
       const text = await result.text();
       const dom = new jsdom.JSDOM(text);

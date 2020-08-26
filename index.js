@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const fs = require("fs");
 const IMDBParser = require("./parser/IMDBParser");
 const WikiParser = require("./parser/WikiParser");
+const RTParser = require("./parser/RTParser");
 const SitesSearch = require("./SitesSearch");
 
 const app = express();
@@ -14,14 +15,16 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const imdbParser = new IMDBParser();
 const wikiParser = new WikiParser();
+const rtParser = new RTParser();
 const sitesSearch = new SitesSearch();
 const parsers = {
-  names: [imdbParser.getName(), wikiParser.getName()],
+  names: [imdbParser.getName(), rtParser.getName(), wikiParser.getName()],
 };
 
 function getParserFromName(name) {
   if (name == imdbParser.getName()) return imdbParser;
   if (name == wikiParser.getName()) return wikiParser;
+  if (name == rtParser.getName()) return rtParser;
 }
 
 // Escuchar
@@ -57,6 +60,8 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
     parser: parser.getName(),
     publicScore: parser.publicScore,
     publicCount: parser.publicCount,
+    criticsScore: parser.criticsScore,
+    criticsCount: parser.criticsCount,
     budget: parser.budget,
     boxOffice: parser.boxOffice,
   });

@@ -6,11 +6,6 @@ class WikiParser {
   static site = "en.wikipedia.org";
   static match = "en.wikipedia.org/wiki/";
 
-  constructor() {
-    this.budget = -1;
-    this.boxOffice = -1;
-  }
-
   getName() {
     return WikiParser.name;
   }
@@ -25,6 +20,9 @@ class WikiParser {
 
   async parse(url) {
     try {
+      this.budget = -1;
+      this.boxOffice = -1;
+      this.error = null;
       const result = await fetch(url);
       const text = await result.text();
       const dom = new jsdom.JSDOM(text);

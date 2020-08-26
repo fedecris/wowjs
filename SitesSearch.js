@@ -9,6 +9,7 @@ class SitesSearch {
 
   async resolveFor(title, year, parser) {
     try {
+      this.error = null;
       // Armar el enlace de busqueda en Google
       const url =
         SitesSearch.baseURL +
