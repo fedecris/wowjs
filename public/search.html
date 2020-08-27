@@ -129,20 +129,23 @@
       // ===== Funciones relacioandas con la consulta =====
 
       // Barrer con todos los parsers
-      function doIt() {
+      async function doIt() {
+        // Registrar el pedido
+        const title = document.getElementById("title").value;
+        const year = document.getElementById("year").value;
+        fetch(`/log?title=${encodeURIComponent(title)}&year=${year}`);
+
         let i = 0;
         parsers.names.forEach((element) => {
           let tagID = `parser${i++}`;
-          query(tagID, element);
+          query(title, year, tagID, element);
         });
       }
 
       // Consultar por una pelicula bajo un parser en particular
-      async function query(parserTag, parserName) {
+      async function query(title, year, parserTag, parserName) {
         document.getElementById(parserTag).textContent = " Retrieving info...";
         // Enviar criterio al server
-        const title = document.getElementById("title").value;
-        const year = document.getElementById("year").value;
         const response = await fetch(
           `/search/${parserName}?title=${encodeURIComponent(
             title

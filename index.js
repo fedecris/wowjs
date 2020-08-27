@@ -5,6 +5,7 @@ const IMDBParser = require("./parser/IMDBParser");
 const WikiParser = require("./parser/WikiParser");
 const RTParser = require("./parser/RTParser");
 const SitesSearch = require("./SitesSearch");
+const db = require("./db");
 
 const app = express();
 
@@ -46,16 +47,19 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
   const title = req.query.title;
   const year = req.query.year;
   const parser = getParserFromName(req.params.name);
+  // Determinar enlace
   const url = await sitesSearch.resolveFor(title, year, parser);
   if (url == null) {
     res.json({ parser: parser.getName(), error: "No matches" });
     return;
   }
+  // Parse documento destino
   await parser.parse(url);
   if (parser.error) {
     res.json({ parser: parser.getName(), error: parser.error });
     return;
   }
+  // Retornar info recuperada
   res.json({
     parser: parser.getName(),
     publicScore: parser.publicScore,
@@ -65,6 +69,17 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
     budget: parser.budget,
     boxOffice: parser.boxOffice,
   });
+});
+
+// Almacenar pedido de consulta
+app.get("/log", async (req, res) => {
+  // Registrar request
+  if (req.query.title && req.query.year) {
+    await db.insertRequest(req.query.title, req.query.year);
+    res.json({ status: "ok" });
+  } else {
+    res.json({ status: "title & year required" });
+  }
 });
 
 // Ejemplo json === POST /api/users gets JSON bodies ===
