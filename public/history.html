@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inconsolata"
+    />
+    <style>
+      body,
+      html {
+        height: 100%;
+        font-family: "Inconsolata", sans-serif;
+      }
+
+      .bgimg {
+        background-position: center;
+        background-size: cover;
+        background-image: url("/w3images/coffeehouse.jpg");
+        min-height: 75%;
+      }
+
+      .menu {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="w3-container" id="where" style="padding-bottom: 32px">
+      <div class="w3-content" style="max-width: 700px">
+        <a href="/search">Search</a> | <a href="/history">Lastest</a>
+        <h1 id="titulo">Latest searches</h1>
+        <div class="w3-content" id="content" style="max-width: 700px">
+          <!-- Result list here (dinamycally loaded) -->
+        </div>
+        <script>
+          async function getLatest() {
+            const response = await fetch("/logged?count=10");
+            const result = await response.json();
+            let content = "No results";
+            if (result.length > 0) {
+              content = "";
+              result.forEach((element) => {
+                let title = document.createElement("h5");
+                //p.className = "w3-tag";
+                let text = document.createTextNode(
+                  `${element.film} (${element.year}) `
+                );
+                title.appendChild(text);
+                document.getElementById("content").appendChild(title);
+                p = document.createElement("p");
+                text = document.createTextNode(`${element.created}) `);
+                p.className = "w3-text-grey";
+                p.appendChild(text);
+                document.getElementById("content").appendChild(p);
+              });
+            }
+          }
+          getLatest();
+        </script>
+      </div>
+    </div>
+  </body>
+</html>

@@ -71,6 +71,10 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
   });
 });
 
+app.get("/history", async (req, res) => {
+  res.sendFile(`${__dirname}/public/history.html`);
+});
+
 // Almacenar pedido de consulta
 app.get("/log", async (req, res) => {
   // Registrar request
@@ -80,6 +84,18 @@ app.get("/log", async (req, res) => {
   } else {
     res.json({ status: "title & year required" });
   }
+});
+
+app.get("/logged", async (req, res) => {
+  // Cantidad a devolver
+  let count = 100;
+  if (req.query.count) {
+    count = parseInt(req.query.count);
+    if (count > 100) count = 100;
+  }
+  // Campos a mostrar
+  const argFields = { _id: 0, film: 1, year: 1, created: 1 };
+  res.json(await db.retrieveRequests(count, argFields));
 });
 
 // Ejemplo json === POST /api/users gets JSON bodies ===

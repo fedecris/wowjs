@@ -44,6 +44,23 @@ async function insertRequest(film, year) {
   console.log("Insert OK!");
 }
 
+async function retrieveRequests(count, fields) {
+  await connect();
+  // Get the documents collection
+  const requests = db.collection("requests");
+  // Insert some documents
+
+  err,
+    (result = await requests
+      .find({}, { projection: fields })
+      .sort({ _id: -1 })
+      .limit(count));
+  if (err) throw err;
+  err, (resp = await result.toArray());
+  if (err) throw err;
+  return resp;
+}
+
 function closeConnection() {
   console.log("Closing connection...");
   client.close();
@@ -52,4 +69,4 @@ function closeConnection() {
 
 //insertRequest("dracula", 1993);
 
-module.exports = { insertRequest };
+module.exports = { insertRequest, retrieveRequests };
