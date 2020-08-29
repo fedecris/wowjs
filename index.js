@@ -71,6 +71,12 @@ app.get("/search/:name", urlencodedParser, async (req, res) => {
   });
 });
 
+// Redireccionar por defecto a busquedas
+app.get("/", async (req, res) => {
+  res.redirect("/search");
+});
+
+// Pagina de historial de consultas
 app.get("/history", async (req, res) => {
   res.sendFile(`${__dirname}/public/history.html`);
 });
@@ -86,6 +92,7 @@ app.get("/log", async (req, res) => {
   }
 });
 
+// Informacion de consultas
 app.get("/logged", async (req, res) => {
   // Cantidad a devolver
   let count = 100;
