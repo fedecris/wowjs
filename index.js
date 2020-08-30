@@ -6,6 +6,7 @@ const WikiParser = require("./parser/WikiParser");
 const RTParser = require("./parser/RTParser");
 const SitesSearch = require("./SitesSearch");
 const db = require("./db");
+require("dotenv").config();
 
 const app = express();
 

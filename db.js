@@ -1,8 +1,9 @@
 const MongoClient = require("mongodb").MongoClient;
 const assert = require("assert");
+require("dotenv").config();
 
 // Connection URL
-const url = "mongodb://172.17.0.2:27017";
+const url = `mongodb://${process.env.DB_SERVER}:${process.env.DB_PORT}`;
 
 // Database Name
 const dbName = "wow";
@@ -14,6 +15,7 @@ let db = null;
 
 // Use connect method to connect to the server
 async function connect() {
+  console.log("LA URL ES: " + url);
   if (db && db.serverConfig.isConnected()) return;
   console.log("Connecting...");
   err,
