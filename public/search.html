@@ -32,6 +32,7 @@
         <a href="/search">Search</a> | <a href="/history">Lastest</a>
         <h1 id="titulo">Search for a film info</h1>
         <h3 id="subtitulo"></h3>
+        <h4 id="errorText" style="color: red"></h4>
         <form
           class="w3-input w3-padding-16 w3-border"
           action="/search"
@@ -125,12 +126,17 @@
       // Cargar la info
       loadInfo();
 
+      function setError(error) {
+        document.getElementById("errorText").textContent = error;
+      }
+
       // ===== Funciones relacioandas con la consulta =====
       let requestID = -1;
       let checks = 0;
 
       // Barrer con todos los parsers
       async function doIt() {
+        setError("");
         // Registrar el pedido
         const title = document.getElementById("title").value;
         const year = document.getElementById("year").value;
@@ -139,22 +145,26 @@
 
       // Consultar por una pelicula con todos los parsers
       async function query(title, year) {
-        // Enviar criterio al server
-        const response = await fetch(
-          `/search/all?title=${encodeURIComponent(title)}&year=${year}`
-        );
-        // Recuperar id de request de busqueda
-        const json = await response.json();
-        if (json && json.id > -1) {
-          requestID = json.id;
-          parsers.names.forEach((parserName) => {
-            document.getElementById(`${parserName}parser`).textContent =
-              " Retrieving info...";
-          });
-          setTimeout(checkStatus, 1000);
-        } else {
-          requestID = -1;
-          window.alert("Error conecting to server");
+        try {
+          // Enviar criterio al server
+          const response = await fetch(
+            `/search/all?title=${encodeURIComponent(title)}&year=${year}`
+          );
+          // Recuperar id de request de busqueda
+          const json = await response.json();
+          if (json && json.id > -1) {
+            requestID = json.id;
+            parsers.names.forEach((parserName) => {
+              document.getElementById(`${parserName}parser`).textContent =
+                " Retrieving info...";
+            });
+            setTimeout(checkStatus, 1000);
+          } else {
+            requestID = -1;
+            setError("No response from server");
+          }
+        } catch (ex) {
+          setError("Error conecting to server");
         }
       }
 
@@ -177,31 +187,35 @@
 
       // Checkear el estado de la busqueda usando el ID de request recibido
       async function checkStatus() {
-        checks++;
-        const statusURL = `/search/status/${requestID}`;
-        const response = await fetch(statusURL);
-        const parsed = await response.text();
-        let recall = true;
-        // Recibimos alguna info?
-        if (parsed && parsed.length > 0) {
-          const data = JSON.parse(parsed);
-          data.forEach((element) => {
-            document.getElementById(
-              `${element.parser}parser`
-            ).textContent = getDataInfo(element);
-          });
-          // Debemos insistir?
-          if (data.length == parsers.names.length) {
-            recall = false;
+        try {
+          checks++;
+          const statusURL = `/search/status/${requestID}`;
+          const response = await fetch(statusURL);
+          const parsed = await response.text();
+          let recall = true;
+          // Recibimos alguna info?
+          if (parsed && parsed.length > 0) {
+            const data = JSON.parse(parsed);
+            data.forEach((element) => {
+              document.getElementById(
+                `${element.parser}parser`
+              ).textContent = getDataInfo(element);
+            });
+            // Debemos insistir?
+            if (data.length == parsers.names.length) {
+              recall = false;
+            }
           }
+          if (checks >= 10) {
+            checks = 0;
+            recall = false;
+            setError("Too many retries");
+          }
+          // Reconsultar en un ratitin
+          if (recall) setTimeout(checkStatus, 1000);
+        } catch (ex) {
+          setError("Connection lost");
         }
-        if (checks >= 10) {
-          checks = 0;
-          recall = false;
-          window.alert("Too many retries");
-        }
-        // Reconsultar en un ratitin
-        if (recall) setTimeout(checkStatus, 1000);
       }
 
       // Consultar por una pelicula bajo un parser en particular
