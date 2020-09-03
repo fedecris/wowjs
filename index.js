@@ -63,6 +63,16 @@ app.get("/search/all", urlencodedParser, async (req, res) => {
   const thisID = searchID++;
   await db.insertRequest(title, year);
 
+  // Verificar en la cache
+  const film = await db.retrieveFilm(title, year);
+  console.log(film);
+  if (film && film.length > 0) {
+    data[thisID] = film[0].data;
+    // Notificar request ID similar a caso donde hay que hacer fetch
+    res.json({ id: thisID });
+    return;
+  }
+
   // Iterar por cada parser
   let parsedData = [];
   parsers.names.forEach(async (parserName) => {
@@ -91,6 +101,10 @@ app.get("/search/all", urlencodedParser, async (req, res) => {
     };
     parsedData.push(aData);
     data[thisID] = parsedData;
+    // Si se completó la busqueda de información, cachear para próximas consultas
+    if (data[thisID].length == parsers.names.length) {
+      db.insertFilm(title, year, data[thisID]);
+    }
   });
   // Notificar inicio de busqueda mediante un request ID
   res.json({ id: thisID });
@@ -98,8 +112,10 @@ app.get("/search/all", urlencodedParser, async (req, res) => {
 
 // Consultar por estdo de search
 app.get("/search/status/:id", urlencodedParser, async (req, res) => {
+  if (!req.params.id) {
+    return res.json({ error: "RequestID required" });
+  }
   const id = req.params.id;
-  console.log("Devolviendo: " + data[id]);
   res.json(data[id]);
 });
 

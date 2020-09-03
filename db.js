@@ -30,9 +30,8 @@ async function connect() {
 
 async function insertRequest(film, year) {
   await connect();
-  // Get the documents collection
+  // Get the requests collection
   const requests = db.collection("requests");
-  // Insert some documents
   err,
     (result = await requests.insertOne({
       film: film,
@@ -42,15 +41,12 @@ async function insertRequest(film, year) {
   assert.equal(err, null);
   assert.equal(1, result.result.n);
   assert.equal(1, result.ops.length);
-  console.log("Insert OK!");
 }
 
 async function retrieveRequests(count, fields) {
   await connect();
-  // Get the documents collection
+  // Get the requests collection
   const requests = db.collection("requests");
-  // Insert some documents
-
   err,
     (result = await requests
       .find({}, { projection: fields })
@@ -62,12 +58,47 @@ async function retrieveRequests(count, fields) {
   return resp;
 }
 
+async function insertFilm(title, year, data) {
+  await connect();
+  const films = db.collection("films");
+  err,
+    (result = await films.insertOne({
+      title: title,
+      year: year,
+      fetched: Date(),
+      data: data,
+    }));
+}
+
+async function retrieveFilm(title, year) {
+  await connect();
+  const films = db.collection("films");
+  err,
+    (result = await films
+      .find({ title: title, year: year }, { projection: { data: 1 } })
+      .limit(1));
+  if (err) throw err;
+  if (result) {
+    resp = await result.toArray();
+    if (err) throw err;
+    return resp;
+  }
+}
+
+async function updateFilm(title, year, data) {
+  await connect();
+}
+
 function closeConnection() {
   console.log("Closing connection...");
   client.close();
   console.log("Closed!");
 }
 
-//insertRequest("dracula", 1993);
-
-module.exports = { insertRequest, retrieveRequests };
+module.exports = {
+  insertRequest,
+  retrieveRequests,
+  insertFilm,
+  retrieveFilm,
+  updateFilm,
+};

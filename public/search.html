@@ -214,7 +214,7 @@
           // Reconsultar en un ratitin
           if (recall) setTimeout(checkStatus, 1000);
         } catch (ex) {
-          setError("Connection lost");
+          setError("Error " + ex);
         }
       }
 
