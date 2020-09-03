@@ -75,7 +75,10 @@ async function retrieveFilm(title, year) {
   const films = db.collection("films");
   err,
     (result = await films
-      .find({ title: title, year: year }, { projection: { data: 1 } })
+      .find(
+        { title: title, year: year },
+        { projection: { data: 1, fetched: 1 } }
+      )
       .limit(1));
   if (err) throw err;
   if (result) {

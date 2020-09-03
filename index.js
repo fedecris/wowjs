@@ -68,8 +68,8 @@ app.get("/search/all", urlencodedParser, async (req, res) => {
   console.log(film);
   if (film && film.length > 0) {
     data[thisID] = film[0].data;
-    // Notificar request ID similar a caso donde hay que hacer fetch
-    res.json({ id: thisID });
+    // Notificar request ID
+    res.json({ id: thisID, cached: film[0].fetched });
     return;
   }
 
