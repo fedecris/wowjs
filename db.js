@@ -15,7 +15,6 @@ let db = null;
 
 // Use connect method to connect to the server
 async function connect() {
-  console.log("LA URL ES: " + url);
   if (db && db.serverConfig.isConnected()) return;
   console.log("Connecting...");
   err,

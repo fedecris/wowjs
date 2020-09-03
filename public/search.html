@@ -80,7 +80,7 @@
       let parsers = null;
 
       // Agrega un nuevo parser a la lista de parser disponible
-      function appendParsersToDOM(tagID, name) {
+      function appendParsersToDOM(name) {
         // Incorporar esto:
         // <p>
         //   <span class="w3-tag">IMDb:</span>
@@ -96,7 +96,7 @@
         span1.appendChild(text1);
         // Span2
         let span2 = document.createElement("span");
-        span2.id = tagID;
+        span2.id = `${name}parser`;
         let text2 = document.createTextNode(" Waiting for a film...");
         span2.appendChild(text2);
         // Incorporarlo al DOM
@@ -117,10 +117,8 @@
       // Carga la info inicial
       async function loadInfo() {
         await getParsers();
-        let i = 0;
         parsers.names.forEach((element) => {
-          let tagID = `parser${i++}`;
-          appendParsersToDOM(tagID, element);
+          appendParsersToDOM(element);
         });
       }
 
@@ -128,32 +126,39 @@
       loadInfo();
 
       // ===== Funciones relacioandas con la consulta =====
+      let requestID = -1;
+      let checks = 0;
 
       // Barrer con todos los parsers
       async function doIt() {
         // Registrar el pedido
         const title = document.getElementById("title").value;
         const year = document.getElementById("year").value;
-        fetch(`/log?title=${encodeURIComponent(title)}&year=${year}`);
-
-        let i = 0;
-        parsers.names.forEach((element) => {
-          let tagID = `parser${i++}`;
-          query(title, year, tagID, element);
-        });
+        query(title, year);
       }
 
-      // Consultar por una pelicula bajo un parser en particular
-      async function query(title, year, parserTag, parserName) {
-        document.getElementById(parserTag).textContent = " Retrieving info...";
+      // Consultar por una pelicula con todos los parsers
+      async function query(title, year) {
         // Enviar criterio al server
         const response = await fetch(
-          `/search/${parserName}?title=${encodeURIComponent(
-            title
-          )}&year=${year}`
+          `/search/all?title=${encodeURIComponent(title)}&year=${year}`
         );
-        // Recuperar data en informar la eventual informacion contenida
+        // Recuperar id de request de busqueda
         const json = await response.json();
+        if (json && json.id > -1) {
+          requestID = json.id;
+          parsers.names.forEach((parserName) => {
+            document.getElementById(`${parserName}parser`).textContent =
+              " Retrieving info...";
+          });
+          setTimeout(checkStatus, 1000);
+        } else {
+          requestID = -1;
+          window.alert("Error conecting to server");
+        }
+      }
+
+      function getDataInfo(json) {
         let result = "";
         if (json.publicScore) {
           result += ` ${json.publicScore} (${json.publicCount} votes) `;
@@ -167,6 +172,50 @@
         if (json.error) {
           result += ` ${json.error} for ${title} (${year})`;
         }
+        return result;
+      }
+
+      // Checkear el estado de la busqueda usando el ID de request recibido
+      async function checkStatus() {
+        checks++;
+        const statusURL = `/search/status/${requestID}`;
+        const response = await fetch(statusURL);
+        const parsed = await response.text();
+        let recall = true;
+        // Recibimos alguna info?
+        if (parsed && parsed.length > 0) {
+          const data = JSON.parse(parsed);
+          data.forEach((element) => {
+            document.getElementById(
+              `${element.parser}parser`
+            ).textContent = getDataInfo(element);
+          });
+          // Debemos insistir?
+          if (data.length == parsers.names.length) {
+            recall = false;
+          }
+        }
+        if (checks >= 10) {
+          checks = 0;
+          recall = false;
+          window.alert("Too many retries");
+        }
+        // Reconsultar en un ratitin
+        if (recall) setTimeout(checkStatus, 1000);
+      }
+
+      // Consultar por una pelicula bajo un parser en particular
+      async function queryForParser(title, year, parserTag, parserName) {
+        document.getElementById(parserTag).textContent = " Retrieving info...";
+        // Enviar criterio al server
+        const response = await fetch(
+          `/search/${parserName}?title=${encodeURIComponent(
+            title
+          )}&year=${year}`
+        );
+        // Recuperar data en informar la eventual informacion contenida
+        const json = await response.json();
+        let result = getDataInfo(json);
         document.getElementById(parserTag).textContent = result;
       }
     </script>
