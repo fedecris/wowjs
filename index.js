@@ -42,11 +42,35 @@ app.get("/parsers", (req, res) => {
 });
 
 // Display pagina de inicio
-app.get("/search", (req, res) => {
-  res.sendFile(`${__dirname}/public/search.html`);
+app.get("/search", async (req, res) => {
+  let title = req.query.title;
+  let year = req.query.year;
+  if (title == null || year == null) {
+    // Default movie
+    title = encodeURIComponent("The Matrix");
+    year = 1999;
+    res.redirect(`/search?title=${title}&year=${year}`);
+    return;
+  }
+  // Embbed menu
+  response = await pageLayout(
+    "/public/search.html",
+    "/public/layout/menu.html",
+    "<MENU_HERE>"
+  );
+  res.send(response);
 });
 
+// Incorpora menuFile en bodyFile reemplazando el tagName
+async function pageLayout(bodyFile, menuFile, tagName) {
+  const body = fs.readFileSync(`${__dirname}${bodyFile}`, "utf-8");
+  const menu = fs.readFileSync(`${__dirname}${menuFile}`, "utf-8");
+  return body.replace(tagName, menu);
+}
+
+// Films buscados desde iniciado el server
 let data = [];
+// Numero de request
 let searchID = 0;
 // Busqueda utilizando todos los parsers
 app.get("/search/all", urlencodedParser, async (req, res) => {
@@ -155,7 +179,13 @@ app.get("/", async (req, res) => {
 
 // Pagina de historial de consultas
 app.get("/history", async (req, res) => {
-  res.sendFile(`${__dirname}/public/history.html`);
+  // Embbed menu
+  response = await pageLayout(
+    "/public/history.html",
+    "/public/layout/menu.html",
+    "<MENU_HERE>"
+  );
+  res.send(response);
 });
 
 // Almacenar un pedido de consulta
@@ -182,18 +212,34 @@ app.get("/logged", async (req, res) => {
   res.json(await db.retrieveRequests(count, argFields));
 });
 
-// Pruebas
-const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-app.get("/test/", async (req, res) => {
-  res.json(tickets);
-  for (let i = 0; i < 1000; i++) {
-    tickets.current++;
-    await snooze(1000);
-  }
+// Pagina de films
+app.get("/films", async (req, res) => {
+  // Embbed menu
+  response = await pageLayout(
+    "/public/films.html",
+    "/public/layout/menu.html",
+    "<MENU_HERE>"
+  );
+  res.send(response);
 });
-app.get("/teststat", async (req, res) => {
-  res.json(tickets);
+
+// Retorna el listado peliculas recuperadas
+app.get("/fetched", async (req, res) => {
+  res.json(await db.retrieveAllFilms());
 });
+
+// // Pruebas
+// const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// app.get("/test/", async (req, res) => {
+//   res.json(tickets);
+//   for (let i = 0; i < 1000; i++) {
+//     tickets.current++;
+//     await snooze(1000);
+//   }
+// });
+// app.get("/teststat", async (req, res) => {
+//   res.json(tickets);
+// });
 
 // Ejemplo json === POST /api/users gets JSON bodies ===
 // app.post('/api/users', jsonParser, function (req, res) {

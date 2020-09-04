@@ -88,6 +88,21 @@ async function retrieveFilm(title, year) {
   }
 }
 
+async function retrieveAllFilms() {
+  await connect();
+  const films = db.collection("films");
+  err,
+    (result = await films
+      .find({}, { projection: { _id: 0, title: 1, year: 1, fetched: 1 } })
+      .sort({ title: 1 }));
+  if (err) throw err;
+  if (result) {
+    resp = await result.toArray();
+    if (err) throw err;
+    return resp;
+  }
+}
+
 async function updateFilm(title, year, data) {
   await connect();
 }
@@ -103,5 +118,6 @@ module.exports = {
   retrieveRequests,
   insertFilm,
   retrieveFilm,
+  retrieveAllFilms,
   updateFilm,
 };

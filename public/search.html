@@ -29,7 +29,8 @@
   <body>
     <div class="w3-container" id="where" style="padding-bottom: 32px">
       <div class="w3-content" style="max-width: 700px">
-        <a href="/search">Search</a> | <a href="/history">Lastest</a>
+        <MENU_HERE>
+        </iframe>
         <h1 id="titulo">Search for a film info</h1>
         <h3 id="subtitulo"></h3>
         <h4 id="errorText" style="color: red"></h4>
@@ -44,17 +45,18 @@
               class="w3-input w3-padding-16 w3-border"
               id="title"
               name="title"
-              value="The Matrix"
+              value=""
             />
             <br />
           </p>
           <p>
             Year:
             <input
+              type="number"
               class="w3-input w3-padding-16 w3-border"
               id="year"
               name="year"
-              value="1999"
+              value=""
             />
             <br />
           </p>
@@ -116,12 +118,38 @@
         subtitulo.textContent = `Current sources: ${parsers.names}`;
       }
 
+      // Retorna el parametro especificado dentro de la URL
+      function getURLParameter(sParam) {
+        let sPageURL = window.location.search.substring(1);
+        let sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+          let sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] == sParam) {
+            return sParameterName[1];
+          }
+        }
+      }
+
+      // Carga los campos de busqueda si corresponde
+      function loadSearchFields() {
+        let title = getURLParameter("title");
+        let year = getURLParameter("year");
+        document.getElementById("title").value = decodeURIComponent(title);
+        document.getElementById("year").value = year;
+      }
+
       // Carga la info inicial
       async function loadInfo() {
+        loadSearchFields();
         await getParsers();
         parsers.names.forEach((element) => {
           appendParsersToDOM(element);
         });
+        // Fetch automatico?
+        let auto = getURLParameter("auto");
+        if (auto) {
+          doIt();
+        }
       }
 
       // Cargar la info
@@ -162,12 +190,14 @@
             requestID = json.id;
             if (json.cached) {
               setCached(`Retrieved ${json.cached}`);
+              setTimeout(checkStatus, 1);
+            } else {
+              parsers.names.forEach((parserName) => {
+                document.getElementById(`${parserName}parser`).textContent =
+                  " Retrieving info...";
+              });
+              setTimeout(checkStatus, 1000);
             }
-            parsers.names.forEach((parserName) => {
-              document.getElementById(`${parserName}parser`).textContent =
-                " Retrieving info...";
-            });
-            setTimeout(checkStatus, 1000);
           } else {
             requestID = -1;
             setError("No response from server");
