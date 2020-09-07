@@ -103,8 +103,12 @@ async function retrieveAllFilms() {
   }
 }
 
-async function updateFilm(title, year, data) {
+async function deleteFilm(title, year) {
   await connect();
+  const target = { title: title, year: year };
+  const films = db.collection("films");
+  err, (result = await films.deleteOne(target));
+  if (err) throw err;
 }
 
 function closeConnection() {
@@ -119,5 +123,5 @@ module.exports = {
   insertFilm,
   retrieveFilm,
   retrieveAllFilms,
-  updateFilm,
+  deleteFilm,
 };

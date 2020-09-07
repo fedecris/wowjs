@@ -64,8 +64,8 @@
             <input
               class="w3-button w3-black"
               type="button"
-              value="Enviar"
-              onclick="doIt()"
+              value="Submit"
+              onclick="doIt(false)"
             />
           </p>
         </form>
@@ -74,7 +74,7 @@
     <div class="w3-container" id="where" style="padding-bottom: 32px">
       <div class="w3-content" id="parsersList" style="max-width: 700px">
         <h3 id="results">Results</h3>
-        <p id="cachedText" style="color: blue"></p>
+        <span id="cachedText" style="color: blue"> </span> <input class="w3-button w3-black" type="button" value="Refresh" id="refreshButton" onclick="doIt(true)">
         <!-- Parser list here (dinamycally loaded) -->
       </div>
     </div>
@@ -140,6 +140,8 @@
 
       // Carga la info inicial
       async function loadInfo() {
+        setCached("");
+        setError("");
         loadSearchFields();
         await getParsers();
         parsers.names.forEach((element) => {
@@ -161,6 +163,8 @@
 
       function setCached(cached) {
         document.getElementById("cachedText").textContent = cached;
+        document.getElementById("refreshButton").disabled = (cached=="");
+
       }
 
       // ===== Funciones relacioandas con la consulta =====
@@ -168,21 +172,21 @@
       let checks = 0;
 
       // Barrer con todos los parsers
-      async function doIt() {
+      async function doIt(force) {
         setError("");
         setCached("");
         // Registrar el pedido
         const title = document.getElementById("title").value;
         const year = document.getElementById("year").value;
-        query(title, year);
+        query(title, year, force?1:0);
       }
 
       // Consultar por una pelicula con todos los parsers
-      async function query(title, year) {
+      async function query(title, year, force) {
         try {
           // Enviar criterio al server
           const response = await fetch(
-            `/search/all?title=${encodeURIComponent(title)}&year=${year}`
+            `/search/all?title=${encodeURIComponent(title)}&year=${year}&force=${force}`
           );
           // Recuperar id de request de busqueda
           const json = await response.json();
@@ -218,6 +222,9 @@
         if (json.budget) {
           result += ` ${json.budget} budget, ${json.boxOffice} box office `;
         }
+        if (json.url) {
+          result += `<br> <a href="${json.url}" target="_blank">${json.url}</a> `;
+        }
         if (json.error) {
           result += ` ${json.error} for ${title} (${year})`;
         }
@@ -238,7 +245,7 @@
             data.forEach((element) => {
               document.getElementById(
                 `${element.parser}parser`
-              ).textContent = getDataInfo(element);
+              ).innerHTML = getDataInfo(element);
             });
             // Se recuperó toda la informacion buscada o debemos repetir polling?
             if (data.length == parsers.names.length) {
@@ -258,7 +265,7 @@
         }
       }
 
-      // Consultar por una pelicula bajo un parser en particular
+      // Consultar por una pelicula bajo un parser en particular (deprecated)
       async function queryForParser(title, year, parserTag, parserName) {
         document.getElementById(parserTag).textContent = " Retrieving info...";
         // Enviar criterio al server

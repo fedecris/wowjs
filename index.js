@@ -76,8 +76,7 @@ let searchID = 0;
 app.get("/search/all", urlencodedParser, async (req, res) => {
   const title = req.query.title;
   const year = req.query.year;
-  console.log(title);
-  console.log(year);
+  const force = req.query.force;
   // Info cargada?
   if (!title || !year) {
     res.json({ error: "Title and year required" });
@@ -87,9 +86,14 @@ app.get("/search/all", urlencodedParser, async (req, res) => {
   const thisID = searchID++;
   await db.insertRequest(title, year);
 
+  // Si es force, eliminar de la cache la posible busqueda existente
+  if (force && force == 1) {
+    console.log("estoy por eliminarrr");
+    db.deleteFilm(title, year);
+  }
+
   // Verificar en la cache
   const film = await db.retrieveFilm(title, year);
-  console.log(film);
   if (film && film.length > 0) {
     data[thisID] = film[0].data;
     // Notificar request ID
@@ -116,6 +120,7 @@ app.get("/search/all", urlencodedParser, async (req, res) => {
     // Retornar info recuperada
     let aData = {
       parser: parser.getName(),
+      url: url,
       publicScore: parser.publicScore,
       publicCount: parser.publicCount,
       criticsScore: parser.criticsScore,
