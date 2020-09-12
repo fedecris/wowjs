@@ -130,6 +130,24 @@ async function insertFilmBasic(title, year, data) {
     }));
 }
 
+async function findFilmBasic(criteria) {
+  console.log(criteria);
+  await connect();
+  const filmBasics = db.collection("filmBasic");
+  err,
+    (result = await filmBasics
+      .find({ title: criteria }, { projection: { _id: 0, title: 1, year: 1 } })
+      .sort({ title: 1 }));
+  if (err) {
+    /* Ignore */
+  }
+  if (result) {
+    resp = await result.toArray();
+    if (err) throw err;
+    return resp;
+  }
+}
+
 function closeConnection() {
   console.log("Closing connection...");
   client.close();
@@ -145,4 +163,5 @@ module.exports = {
   deleteFilm,
   insertFilmBasic,
   emptyFilmBasic,
+  findFilmBasic,
 };

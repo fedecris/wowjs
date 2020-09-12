@@ -233,6 +233,15 @@ app.get("/fetched", async (req, res) => {
   res.json(await db.retrieveAllFilms());
 });
 
+// Retorna el listado peliculas recuperadas
+app.get("/filmBasic", async (req, res) => {
+  if (req.query.criteria) {
+    res.json(await db.findFilmBasic(req.query.criteria));
+  } else {
+    res.json({});
+  }
+});
+
 // // Pruebas
 // const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // app.get("/test/", async (req, res) => {

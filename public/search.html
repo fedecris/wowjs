@@ -40,12 +40,24 @@
           method="post"
         >
           <p>
+            Film:
+            <input
+              class="w3-input w3-padding-16 w3-border"
+              id="film"
+              name="film"
+              value=""
+              onkeyup="findFilm()"
+            />
+            <br />
+          </p>
+          <p>
             Title:
             <input
               class="w3-input w3-padding-16 w3-border"
               id="title"
               name="title"
               value=""
+              disabled=true
             />
             <br />
           </p>
@@ -57,6 +69,7 @@
               id="year"
               name="year"
               value=""
+              disabled=true
             />
             <br />
           </p>
@@ -287,6 +300,20 @@
         let result = getDataInfo(json);
         document.getElementById(parserTag).textContent = result;
       }
+
+      // Consultar filmsbase similares
+      async function findFilm() {
+        let criteria = document.getElementById("film").value;
+        if (criteria.length>3) {
+          const response = await fetch(`/filmBasic?criteria=${criteria}`);
+          const parsed = await response.json();
+          if (parsed && parsed.length>0) {
+            document.getElementById("title").value = parsed[0].title;
+            document.getElementById("year").value = parsed[0].year;
+          }
+        }
+      }
+
     </script>
   </body>
 </html>
