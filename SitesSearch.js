@@ -25,7 +25,7 @@ class SitesSearch {
       // Los enlaces inician con /url?q=
       let resval = element.href.replace("/url?q=", "");
       // Y finalizan con &
-      resval = resval.substring(0, resval.indexOf("&"));
+      resval = resval.substring(0, resval.indexOf("&")).replace("%2527", "'");
       console.log(`  Link for ${parser.getName()}: ${resval} `);
       return resval;
     } catch (err) {

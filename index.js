@@ -10,6 +10,7 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const jsdom = require("jsdom");
 const { info } = require("console");
+const { check, validationResult } = require("express-validator");
 
 const app = express();
 
@@ -72,72 +73,90 @@ async function pageLayout(bodyFile, menuFile, tagName) {
 let data = [];
 // Numero de request
 let searchID = 0;
-// Busqueda utilizando todos los parsers
-app.get("/search/all", urlencodedParser, async (req, res) => {
-  const title = req.query.title;
-  const year = req.query.year;
-  const force = req.query.force;
-  // Info cargada?
-  if (!title || !year) {
-    res.json({ error: "Title and year required" });
-    return;
-  }
-  // Nueba busqueda
-  const thisID = searchID++;
-  await db.insertRequest(title, year);
-
-  // Si es force, eliminar de la cache la posible busqueda existente
-  if (force && force == 1) {
-    console.log("estoy por eliminarrr");
-    db.deleteFilm(title, year);
-  }
-
-  // Verificar en la cache
-  const film = await db.retrieveFilm(title, year);
-  if (film && film.length > 0) {
-    data[thisID] = film[0].data;
-    // Notificar request ID
-    res.json({ id: thisID, cached: film[0].fetched });
-    return;
-  }
-
-  // Iterar por cada parser
-  let parsedData = [];
-  parsers.names.forEach(async (parserName) => {
-    // Determinar enlace
-    const parser = getParserFromName(parserName);
-    const url = await sitesSearch.resolveFor(title, year, parser);
-    if (url == null) {
-      res.json({ parser: parser.getName(), error: "No matches" });
+// === Busqueda utilizando todos los parsers ===
+app.get(
+  "/search/all",
+  [
+    check("title", "Title must be at least two characters long").isLength({
+      min: 2,
+    }),
+    check("year", "Year must be four digits long")
+      .isLength({ min: 4, max: 4 })
+      .isNumeric(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(errors.array());
+      res.json({ error: errors.array({ onlyFirstError: true }) });
       return;
     }
-    // Parse documento destino
-    await parser.parse(url);
-    if (parser.error) {
-      res.json({ parser: parser.getName(), error: parser.error });
+    return;
+
+    const title = req.query.title;
+    const year = req.query.year;
+    const force = req.query.force;
+    // Info cargada?
+    if (!title || !year) {
+      res.json({ error: "Title and year required" });
       return;
     }
-    // Retornar info recuperada
-    let aData = {
-      parser: parser.getName(),
-      url: url,
-      publicScore: parser.publicScore,
-      publicCount: parser.publicCount,
-      criticsScore: parser.criticsScore,
-      criticsCount: parser.criticsCount,
-      budget: parser.budget,
-      boxOffice: parser.boxOffice,
-    };
-    parsedData.push(aData);
-    data[thisID] = parsedData;
-    // Si se completó la busqueda de información, cachear para próximas consultas
-    if (data[thisID].length == parsers.names.length) {
-      db.insertFilm(title, year, data[thisID]);
+    // Nueba busqueda
+    const thisID = searchID++;
+    await db.insertRequest(title, year);
+
+    // Si es force, eliminar de la cache la posible busqueda existente
+    if (force && force == 1) {
+      db.deleteFilm(title, year);
     }
-  });
-  // Notificar inicio de busqueda mediante un request ID
-  res.json({ id: thisID });
-});
+
+    // Verificar en la cache
+    const film = await db.retrieveFilm(title, year);
+    if (film && film.length > 0) {
+      data[thisID] = film[0].data;
+      // Notificar request ID
+      res.json({ id: thisID, cached: film[0].fetched });
+      return;
+    }
+
+    // Iterar por cada parser
+    let parsedData = [];
+    parsers.names.forEach(async (parserName) => {
+      // Determinar enlace
+      const parser = getParserFromName(parserName);
+      const url = await sitesSearch.resolveFor(title, year, parser);
+      if (url == null) {
+        res.json({ parser: parser.getName(), error: "No matches" });
+        return;
+      }
+      // Parse documento destino
+      await parser.parse(url);
+      if (parser.error) {
+        res.json({ parser: parser.getName(), error: parser.error });
+        return;
+      }
+      // Retornar info recuperada
+      let aData = {
+        parser: parser.getName(),
+        url: url,
+        publicScore: parser.publicScore,
+        publicCount: parser.publicCount,
+        criticsScore: parser.criticsScore,
+        criticsCount: parser.criticsCount,
+        budget: parser.budget,
+        boxOffice: parser.boxOffice,
+      };
+      parsedData.push(aData);
+      data[thisID] = parsedData;
+      // Si se completó la busqueda de información, cachear para próximas consultas
+      if (data[thisID].length == parsers.names.length) {
+        db.insertFilm(title, year, data[thisID]);
+      }
+    });
+    // Notificar inicio de busqueda mediante un request ID
+    res.json({ id: thisID });
+  }
+);
 
 // Consultar por estdo de search
 app.get("/search/status/:id", urlencodedParser, async (req, res) => {
