@@ -10,7 +10,7 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const jsdom = require("jsdom");
 const { info } = require("console");
-const { userValidationRules, validate } = require("./validator.js");
+const { filmSchema, validate } = require("./validator.js");
 
 const app = express();
 
@@ -74,7 +74,7 @@ let data = [];
 // Numero de request
 let searchID = 0;
 // === Busqueda utilizando todos los parsers ===
-app.get("/search/all", userValidationRules(), validate, async (req, res) => {
+app.get("/search/all", validate(filmSchema), async (req, res) => {
   const title = req.query.title;
   const year = req.query.year;
   const force = req.query.force;
