@@ -22,6 +22,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.6.1",
     "jsdom": "^16.4.0",
+    "line-reader": "^0.4.0",
     "mongodb": "^3.6.0",
     "node-fetch": "^2.6.0"
   }

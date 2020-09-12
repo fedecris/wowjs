@@ -111,6 +111,25 @@ async function deleteFilm(title, year) {
   if (err) throw err;
 }
 
+async function emptyFilmBasic(title, year, data) {
+  await connect();
+  const filmBasics = db.collection("filmBasic");
+  err, (result = await filmBasics.deleteMany());
+  if (err) {
+    console.log(err);
+  }
+}
+
+async function insertFilmBasic(title, year, data) {
+  await connect();
+  const filmBasics = db.collection("filmBasic");
+  err,
+    (result = await filmBasics.insertOne({
+      title: title,
+      year: year,
+    }));
+}
+
 function closeConnection() {
   console.log("Closing connection...");
   client.close();
@@ -124,4 +143,6 @@ module.exports = {
   retrieveFilm,
   retrieveAllFilms,
   deleteFilm,
+  insertFilmBasic,
+  emptyFilmBasic,
 };
