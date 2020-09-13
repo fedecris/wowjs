@@ -26,6 +26,7 @@ class SitesSearch {
       let resval = element.href.replace("/url?q=", "");
       // Y finalizan con &
       resval = resval.substring(0, resval.indexOf("&")).replace("%2527", "'");
+      resval = resval.replace("%2526", "&");
       console.log(`  Link for ${parser.getName()}: ${resval} `);
       return resval;
     } catch (err) {

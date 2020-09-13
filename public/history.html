@@ -36,7 +36,7 @@
         </div>
         <script>
           async function getLatest() {
-            const response = await fetch("/logged?count=10");
+            const response = await fetch("/logged?count=20");
             const result = await response.json();
             let content = "No results";
             if (result.length > 0) {
