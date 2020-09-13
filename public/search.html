@@ -8,7 +8,7 @@
       href="https://fonts.googleapis.com/css?family=Inconsolata"
     />
     <style>
-      body,
+            body,
       html {
         height: 100%;
         font-family: "Inconsolata", sans-serif;
@@ -24,29 +24,11 @@
       .menu {
         display: none;
       }
-
-      * { box-sizing: border-box; }
-      body {
-        font: 16px Arial;
-      }
+      
       .autocomplete {
         /*the container must be positioned relative:*/
         position: relative;
         display: inline-block;
-      }
-      input {
-        border: 1px solid transparent;
-        background-color: #f1f1f1;
-        padding: 10px;
-        font-size: 16px;
-      }
-      input[type=text] {
-        background-color: #f1f1f1;
-        width: 100%;
-      }
-      input[type=submit] {
-        background-color: DodgerBlue;
-        color: #fff;
       }
       .autocomplete-items {
         position: absolute;
@@ -74,9 +56,6 @@
         background-color: DodgerBlue !important;
         color: #ffffff;
       }
-
-
-
     </style>
   </head>
   <body>
@@ -93,7 +72,6 @@
           method="post"
         >
           <div class="autocomplete" style="width:100%">
-            <p>
               Film:
               <input
                 class="w3-input w3-padding-16 w3-border"
@@ -102,32 +80,27 @@
                 value=""
                 onkeyup="findFilm()"
               />
-              <br />
-            </p>
           </div>
-          <p>
-            Title:
-            <input
-              class="w3-input w3-padding-16 w3-border"
-              id="title"
-              name="title"
-              value=""
-              disabled=true
-            />
-            <br />
-          </p>
-          <p>
-            Year:
-            <input
-              type="number"
-              class="w3-input w3-padding-16 w3-border"
-              id="year"
-              name="year"
-              value=""
-              disabled=true
-            />
-            <br />
-          </p>
+          <br /><br />
+          Title:
+          <input
+            class="w3-input w3-padding-16 w3-border"
+            id="title"
+            name="title"
+            value=""
+            disabled=true
+          />
+          <br />
+          Year:
+          <input
+            type="number"
+            class="w3-input w3-padding-16 w3-border"
+            id="year"
+            name="year"
+            value=""
+            disabled=true
+          />
+          <br />
           <p>
             <input
               class="w3-button w3-black"
@@ -359,6 +332,9 @@
       // Consultar filmsbase similares
       let lastCriteria = "";
       async function findFilm() {
+        if (event.keyCode==27) {
+          document.getElementById("film").value = "";
+        }
         let criteria = document.getElementById("film").value;
         // Si el criterio no cambion, no hacer nada
         if (lastCriteria==criteria) {
