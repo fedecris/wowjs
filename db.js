@@ -131,15 +131,17 @@ async function insertFilmBasic(title, year, data) {
 }
 
 async function findFilmBasic(criteria) {
-  console.log(criteria);
   await connect();
   const filmBasics = db.collection("filmBasic");
+  let re = new RegExp("^" + criteria, "i");
   err,
     (result = await filmBasics
-      .find({ title: criteria }, { projection: { _id: 0, title: 1, year: 1 } })
-      .sort({ title: 1 }));
+      .find({ title: re }, { projection: { _id: 0, title: 1, year: 1 } })
+      .sort({ title: 1 })
+      .limit(10));
   if (err) {
     /* Ignore */
+    console.log(err);
   }
   if (result) {
     resp = await result.toArray();

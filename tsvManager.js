@@ -15,14 +15,21 @@ async function doIt() {
     let parts = line.split("\t");
     let type = parts[1];
     let title = parts[2];
-    let year = parts[5];
-
-    // solo peliculas
+    let year = Number.parseInt(parts[5]);
+    let duration = Number.parseInt(parts[7]);
+    // == Algunos criterios para reducir el movieSet ==
+    // solo peliculas...
     if (type != "movie") return;
+    // ...que tengan definido el año...
+    if (!Number.isInteger(year)) return;
+    // ...y que tengan al menos una hora de duracion...
+    if (!Number.isInteger(duration) || duration < 60) return;
     filmCount++;
 
+    // log para ver evolucion
+    if (filmCount % 1000 == 0)
+      console.log(`${filmCount}: ${title} (${year}) ${duration} min`);
     // procesar
-    console.log(`${filmCount}: ${title} (${year})`);
     db.insertFilmBasic(title, year);
   });
 }
