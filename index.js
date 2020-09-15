@@ -103,7 +103,7 @@ app.get("/search/all", validate(filmSchema), async (req, res) => {
   }
   // Nueba busqueda
   const thisID = searchID++;
-  await db.insertRequest(title, year);
+  await db.insertRequest(title, year, req.user ? req.user[0].name : null);
 
   // Si es force, eliminar de la cache la posible busqueda existente
   if (force && force == 1) {
@@ -232,7 +232,7 @@ app.get("/logged", async (req, res) => {
     if (count > 100) count = 100;
   }
   // Campos a mostrar
-  const argFields = { _id: 0, film: 1, year: 1, created: 1 };
+  const argFields = { _id: 0, film: 1, year: 1, created: 1, user: 1 };
   res.json(await db.retrieveRequests(count, argFields));
 });
 

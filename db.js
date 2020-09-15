@@ -28,7 +28,7 @@ async function connect() {
   db = client.db(dbName);
 }
 
-async function insertRequest(film, year) {
+async function insertRequest(film, year, username) {
   await connect();
   // Get the requests collection
   const requests = db.collection("requests");
@@ -36,6 +36,7 @@ async function insertRequest(film, year) {
     (result = await requests.insertOne({
       film: film,
       year: year,
+      user: username,
       created: Date(),
     }));
   assert.equal(err, null);
