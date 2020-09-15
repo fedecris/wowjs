@@ -150,6 +150,32 @@ async function findFilmBasic(criteria) {
   }
 }
 
+async function insertUser(name, email, pass) {
+  await connect();
+  const users = db.collection("users");
+  err,
+    (result = await users.insertOne({
+      name: name,
+      email: email,
+      pass: pass,
+    }));
+}
+
+async function retrieveUser(email) {
+  await connect();
+  const users = db.collection("users");
+  err,
+    (result = await users
+      .find({ email: email }, { projection: { email: 1, name: 1, pass: 1 } })
+      .limit(1));
+  if (err) throw err;
+  if (result) {
+    resp = await result.toArray();
+    if (err) throw err;
+    return resp;
+  }
+}
+
 function closeConnection() {
   console.log("Closing connection...");
   client.close();
@@ -166,4 +192,6 @@ module.exports = {
   insertFilmBasic,
   emptyFilmBasic,
   findFilmBasic,
+  insertUser,
+  retrieveUser,
 };

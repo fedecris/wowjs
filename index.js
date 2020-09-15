@@ -11,8 +11,21 @@ const fetch = require("node-fetch");
 const jsdom = require("jsdom");
 const { info } = require("console");
 const { filmSchema, validate } = require("./validator.js");
-
+const passport = require("passport");
+const flash = require("connect-flash");
+const cookieParser = require("cookie-parser");
+const expressSession = require("express-session");
 const app = express();
+
+// Use flash
+app.use(cookieParser("keyboard cat"));
+app.use(expressSession({ cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 } }));
+app.use(flash());
+
+// Passport Middleware
+require("./config/passport")(passport);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // create application/json parser
 const jsonParser = bodyParser.json();
@@ -57,15 +70,20 @@ app.get("/search", async (req, res) => {
   response = await pageLayout(
     "/public/search.html",
     "/public/layout/menu.html",
-    "<MENU_HERE>"
+    "<MENU_HERE>",
+    req.user
   );
   res.send(response);
 });
 
 // Incorpora menuFile en bodyFile reemplazando el tagName
-async function pageLayout(bodyFile, menuFile, tagName) {
-  const body = fs.readFileSync(`${__dirname}${bodyFile}`, "utf-8");
-  const menu = fs.readFileSync(`${__dirname}${menuFile}`, "utf-8");
+async function pageLayout(bodyFile, menuFile, tagName, user) {
+  let body = fs.readFileSync(`${__dirname}${bodyFile}`, "utf-8");
+  let menu = fs.readFileSync(`${__dirname}${menuFile}`, "utf-8");
+  if (user) {
+    menu = menu.replace("Login", `${user[0].name} (Logout)`);
+    menu = menu.replace("/login", "/logout");
+  }
   return body.replace(tagName, menu);
 }
 
@@ -188,7 +206,8 @@ app.get("/history", async (req, res) => {
   response = await pageLayout(
     "/public/history.html",
     "/public/layout/menu.html",
-    "<MENU_HERE>"
+    "<MENU_HERE>",
+    req.user
   );
   res.send(response);
 });
@@ -223,7 +242,8 @@ app.get("/films", async (req, res) => {
   response = await pageLayout(
     "/public/films.html",
     "/public/layout/menu.html",
-    "<MENU_HERE>"
+    "<MENU_HERE>",
+    req.user
   );
   res.send(response);
 });
@@ -240,6 +260,33 @@ app.get("/filmBasic", async (req, res) => {
   } else {
     res.json({});
   }
+});
+
+// Pagina de login
+app.get("/login", async (req, res) => {
+  // Embbed menu
+  response = await pageLayout(
+    "/public/login.html",
+    "/public/layout/menu.html",
+    "<MENU_HERE>",
+    req.user
+  );
+  res.send(response);
+});
+
+// Accesso
+app.post("/auth", urlencodedParser, function (req, res, next) {
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login?err=1",
+    failureFlash: false,
+  })(req, res, next);
+});
+
+// Cierre
+app.get("/logout", async (req, res) => {
+  req.logout();
+  res.redirect("/");
 });
 
 // // Pruebas
