@@ -2,29 +2,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="scripts/general.js"></script>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Inconsolata"
     />
-    <style>
-      body,
-      html {
-        height: 100%;
-        font-family: "Inconsolata", sans-serif;
-      }
-
-      .bgimg {
-        background-position: center;
-        background-size: cover;
-        background-image: url("/w3images/coffeehouse.jpg");
-        min-height: 75%;
-      }
-
-      .menu {
-        display: none;
-      }
-    </style>
+    <link rel="stylesheet" href="styles/extensions.css" />
   </head>
   <body>
     <div class="w3-container" id="where" style="padding-bottom: 32px">
@@ -35,35 +19,6 @@
           <!-- Result list here (dinamycally loaded) -->
         </div>
         <script>
-          async function getFilms() {
-            // TODO REFACTOR FOR FILMS
-            const response = await fetch("/fetched");
-            const result = await response.json();
-            let content = "No results";
-            if (result.length > 0) {
-              content = "";
-              result.forEach((element) => {
-                let title = document.createElement("a");
-                title.href = `/search?title=${element.title}&year=${element.year}&auto=1`;
-                let text = document.createTextNode(
-                  `${element.title} (${element.year}) `
-                );
-                title.appendChild(text);
-                document.getElementById("content").appendChild(title);
-                fetched = document.createElement("span");
-                text = document.createTextNode(`${element.fetched})`);
-                fetched.className = "w3-text-grey";
-                fetched.appendChild(text);
-                document
-                  .getElementById("content")
-                  .appendChild(document.createElement("br"));
-                document.getElementById("content").appendChild(fetched);
-                document
-                  .getElementById("content")
-                  .appendChild(document.createElement("br"));
-              });
-            }
-          }
           getFilms();
         </script>
       </div>

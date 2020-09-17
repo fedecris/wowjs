@@ -68,11 +68,6 @@ function getParserFromName(name) {
 }
 
 function getMenuLinks(user) {
-  // menu = menu.replace("Login", `${user[0].name} (Logout)`);
-  // menu = menu.replace("/login", "/logout");
-  // let loginLink = user
-  //   ? `<a href=/logout> ${user[0].name} (Logout)`
-  //   : `<a href=/login> Login`;
   let username = null;
   if (user) username = user[0].name;
   return {
