@@ -16,11 +16,32 @@ const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const expressSession = require("express-session");
 const app = express();
+const ejs = require("ejs");
+const path = require("path");
+const e = require("express");
 
 // Use flash
 app.use(cookieParser("keyboard cat"));
-app.use(expressSession({ cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 } }));
+app.use(
+  expressSession({
+    cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 },
+    secret: "my secret",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 app.use(flash());
+
+// set the view engine to ejs
+// Require static assets from public folder
+app.use(express.static(path.join(__dirname, "public")));
+
+// Set 'views' directory for any views being rendered res.render()
+app.set("views", path.join(__dirname, "views"));
+
+// Set view engine as EJS
+app.engine("html", require("ejs").renderFile);
+app.set("view engine", "ejs");
 
 // Passport Middleware
 require("./config/passport")(passport);
@@ -46,6 +67,19 @@ function getParserFromName(name) {
   if (name == rtParser.getName()) return rtParser;
 }
 
+function getMenuLinks(user) {
+  // menu = menu.replace("Login", `${user[0].name} (Logout)`);
+  // menu = menu.replace("/login", "/logout");
+  // let loginLink = user
+  //   ? `<a href=/logout> ${user[0].name} (Logout)`
+  //   : `<a href=/login> Login`;
+  let username = null;
+  if (user) username = user[0].name;
+  return {
+    username: username,
+  };
+}
+
 // Escuchar
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on ${port}`));
@@ -66,26 +100,8 @@ app.get("/search", async (req, res) => {
     res.redirect(`/search?title=${title}&year=${year}`);
     return;
   }
-  // Embbed menu
-  response = await pageLayout(
-    "/public/search.html",
-    "/public/layout/menu.html",
-    "<MENU_HERE>",
-    req.user
-  );
-  res.send(response);
+  res.render("search", getMenuLinks(req.user));
 });
-
-// Incorpora menuFile en bodyFile reemplazando el tagName
-async function pageLayout(bodyFile, menuFile, tagName, user) {
-  let body = fs.readFileSync(`${__dirname}${bodyFile}`, "utf-8");
-  let menu = fs.readFileSync(`${__dirname}${menuFile}`, "utf-8");
-  if (user) {
-    menu = menu.replace("Login", `${user[0].name} (Logout)`);
-    menu = menu.replace("/login", "/logout");
-  }
-  return body.replace(tagName, menu);
-}
 
 // Films buscados desde iniciado el server
 let data = [];
@@ -202,14 +218,7 @@ app.get("/", async (req, res) => {
 
 // Pagina de historial de consultas
 app.get("/history", async (req, res) => {
-  // Embbed menu
-  response = await pageLayout(
-    "/public/history.html",
-    "/public/layout/menu.html",
-    "<MENU_HERE>",
-    req.user
-  );
-  res.send(response);
+  res.render("history", getMenuLinks(req.user));
 });
 
 // Almacenar un pedido de consulta
@@ -238,14 +247,7 @@ app.get("/logged", async (req, res) => {
 
 // Pagina de films
 app.get("/films", async (req, res) => {
-  // Embbed menu
-  response = await pageLayout(
-    "/public/films.html",
-    "/public/layout/menu.html",
-    "<MENU_HERE>",
-    req.user
-  );
-  res.send(response);
+  res.render("films", getMenuLinks(req.user));
 });
 
 // Retorna el listado peliculas recuperadas
@@ -264,14 +266,7 @@ app.get("/filmBasic", async (req, res) => {
 
 // Pagina de login
 app.get("/login", async (req, res) => {
-  // Embbed menu
-  response = await pageLayout(
-    "/public/login.html",
-    "/public/layout/menu.html",
-    "<MENU_HERE>",
-    req.user
-  );
-  res.send(response);
+  res.render("login", getMenuLinks(req.user));
 });
 
 // Accesso

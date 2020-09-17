@@ -1,0 +1,4 @@
+<a href="/films">Films</a> | <a href="/search">Search</a> |
+<a href="/history">Lastest</a> | <% if (username) { %>
+<a href="/logout"><%= username %> (Logout)</a> <% } else { %>
+<a href="/login">Login</a> <% } %>
