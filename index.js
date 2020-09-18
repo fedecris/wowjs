@@ -278,26 +278,3 @@ app.get("/logout", async (req, res) => {
   req.logout();
   res.redirect("/");
 });
-
-// // Pruebas
-// const snooze = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-// app.get("/test/", async (req, res) => {
-//   res.json(tickets);
-//   for (let i = 0; i < 1000; i++) {
-//     tickets.current++;
-//     await snooze(1000);
-//   }
-// });
-// app.get("/teststat", async (req, res) => {
-//   res.json(tickets);
-// });
-
-// Ejemplo json === POST /api/users gets JSON bodies ===
-// app.post('/api/users', jsonParser, function (req, res) {
-//     // create user in req.body
-//   })
-
-// ============ Pruebas invocacion desde terminal =========
-// const url = process.argv[2];
-// console.log(`Crawling ${url}...`);
-// fetchSites(url);
