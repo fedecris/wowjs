@@ -18,7 +18,7 @@ const expressSession = require("express-session");
 const app = express();
 const ejs = require("ejs");
 const path = require("path");
-const e = require("express");
+const { getRenderArguments } = require("./common");
 
 // Use flash
 app.use(cookieParser("keyboard cat"));
@@ -67,17 +67,13 @@ function getParserFromName(name) {
   if (name == rtParser.getName()) return rtParser;
 }
 
-function getMenuLinks(user) {
-  let username = null;
-  if (user) username = user[0].name;
-  return {
-    username: username,
-  };
-}
-
 // Escuchar
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on ${port}`));
+
+// Users route
+const users = require("./routes/users");
+app.use("/users", users);
 
 // Retorna los parsers disponibles
 app.get("/parsers", (req, res) => {
@@ -95,7 +91,7 @@ app.get("/search", async (req, res) => {
     res.redirect(`/search?title=${title}&year=${year}`);
     return;
   }
-  res.render("search", getMenuLinks(req.user));
+  res.render("search", getRenderArguments(req.user));
 });
 
 // Films buscados desde iniciado el server
@@ -213,7 +209,7 @@ app.get("/", async (req, res) => {
 
 // Pagina de historial de consultas
 app.get("/history", async (req, res) => {
-  res.render("history", getMenuLinks(req.user));
+  res.render("history", getRenderArguments(req.user));
 });
 
 // Almacenar un pedido de consulta
@@ -242,7 +238,7 @@ app.get("/logged", async (req, res) => {
 
 // Pagina de films
 app.get("/films", async (req, res) => {
-  res.render("films", getMenuLinks(req.user));
+  res.render("films", getRenderArguments(req.user));
 });
 
 // Retorna el listado peliculas recuperadas
@@ -257,24 +253,4 @@ app.get("/filmBasic", async (req, res) => {
   } else {
     res.json({});
   }
-});
-
-// Pagina de login
-app.get("/login", async (req, res) => {
-  res.render("login", getMenuLinks(req.user));
-});
-
-// Accesso
-app.post("/auth", urlencodedParser, function (req, res, next) {
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/login?err=1",
-    failureFlash: false,
-  })(req, res, next);
-});
-
-// Cierre
-app.get("/logout", async (req, res) => {
-  req.logout();
-  res.redirect("/");
 });
