@@ -1,6 +1,6 @@
 /* Latest searches */
 async function getLatest() {
-  const response = await fetch("/logged?count=20");
+  const response = await fetch("/films/logged?count=20");
   const result = await response.json();
   let content = "No results";
   if (result.length > 0) {

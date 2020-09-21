@@ -1,6 +1,6 @@
 /* Fetched films */
 async function getFilms() {
-  const response = await fetch("/fetched");
+  const response = await fetch("/films/fetched");
   const result = await response.json();
   let content = "No results";
   if (result.length > 0) {

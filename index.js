@@ -52,11 +52,13 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on ${port}`));
 
-// Users route
+// Users & search route
 const users = require("./routes/users");
 const search = require("./routes/search");
+const films = require("./routes/films");
 app.use("/users", users);
 app.use("/search", search);
+app.use("/films", films);
 
 // Retorna los parsers disponibles
 app.get("/parsers", (req, res) => {
@@ -66,52 +68,4 @@ app.get("/parsers", (req, res) => {
 // Redireccionar por defecto a busquedas
 app.get("/", async (req, res) => {
   res.redirect("/search");
-});
-
-// Pagina de historial de consultas
-app.get("/history", async (req, res) => {
-  res.render("history", getRenderArguments(req.user));
-});
-
-// Almacenar un pedido de consulta
-app.get("/log", async (req, res) => {
-  // Registrar request
-  if (req.query.title && req.query.year) {
-    await db.insertRequest(req.query.title, req.query.year);
-    res.json({ status: "ok" });
-  } else {
-    res.json({ status: "title & year required" });
-  }
-});
-
-// Informacion de consultas
-app.get("/logged", async (req, res) => {
-  // Cantidad a devolver
-  let count = 100;
-  if (req.query.count) {
-    count = parseInt(req.query.count);
-    if (count > 100) count = 100;
-  }
-  // Campos a mostrar
-  const argFields = { _id: 0, film: 1, year: 1, created: 1, user: 1 };
-  res.json(await db.retrieveRequests(count, argFields));
-});
-
-// Pagina de films
-app.get("/films", async (req, res) => {
-  res.render("films", getRenderArguments(req.user));
-});
-
-// Retorna el listado peliculas recuperadas
-app.get("/fetched", async (req, res) => {
-  res.json(await db.retrieveAllFilms());
-});
-
-// Retorna el listado peliculas recuperadas
-app.get("/filmBasic", async (req, res) => {
-  if (req.query.criteria) {
-    res.json(await db.findFilmBasic(req.query.criteria));
-  } else {
-    res.json({});
-  }
 });

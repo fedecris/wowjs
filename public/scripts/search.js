@@ -206,7 +206,7 @@ async function findFilm() {
     autocomplete(document.getElementById("film"), []);
   }
   if (criteria.length > 0) {
-    const response = await fetch(`/filmBasic?criteria=${criteria}`);
+    const response = await fetch(`/films/filmBasic?criteria=${criteria}`);
     const parsed = await response.json();
     if (parsed && parsed.length > 0) {
       let films = [];
