@@ -137,8 +137,17 @@ async function findFilmBasic(criteria) {
   let re = new RegExp("^" + criteria, "i");
   err,
     (result = await filmBasics
-      .find({ title: re }, { projection: { _id: 0, title: 1, year: 1 } })
-      .sort({ title: 1 })
+      .aggregate([
+        { $match: { title: re } },
+        {
+          $project: {
+            title: 1,
+            year: 1,
+            field_length: { $strLenCP: "$title" },
+          },
+        },
+        { $sort: { field_length: 1 } },
+      ])
       .limit(10));
   if (err) {
     /* Ignore */
