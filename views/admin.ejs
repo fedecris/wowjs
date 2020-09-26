@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="/scripts/general.js"></script>
+    <script type="text/javascript" src="/scripts/films.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inconsolata"
+    />
+    <link rel="stylesheet" href="/styles/extensions.css" />
+  </head>
+  <body>
+    <div class="w3-container" id="where" style="padding-bottom: 32px">
+      <div class="w3-content" style="max-width: 700px">
+        <%- include ('menu.ejs') %>
+        <h1 id="titulo">Admin</h1>
+        <div class="w3-content" id="content" style="max-width: 700px">
+          <form class="w3-input w3-padding-16 w3-border">
+            <br /><br />
+            Status:
+            <input
+              class="w3-input w3-padding-16 w3-border"
+              id="status"
+              name="status"
+              disabled="true"
+              value="Ready"
+            />
+            <br />
+            <p>
+              <input
+                class="w3-button w3-black"
+                type="button"
+                id="importTSVButton"
+                value="Import Films Base"
+                onclick="importFilms()"
+              />
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Conectar al socket para recibir status
+      let socket = io.connect("localhost:3000");
+      socket.on("importTSV", (content) => {
+        // Actualiar el status
+        document.getElementById("status").value = content;
+        // Habilitar el boton de importacion solo si no hay actividad
+        document.getElementById("importTSVButton").disabled =
+          document.getElementById("status").value != "Ready";
+      });
+
+      /* Import list base */
+      async function importFilms() {
+        document.getElementById("importTSVButton").disabled = true;
+        await fetch("/admin/importFilms");
+      }
+    </script>
+  </body>
+</html>

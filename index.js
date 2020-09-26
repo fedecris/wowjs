@@ -14,6 +14,7 @@ const app = express();
 const ejs = require("ejs");
 const path = require("path");
 const { getRenderArguments, getParsersList } = require("./common");
+const ssocket = require("./ssocket");
 
 // Use flash
 app.use(cookieParser("keyboard cat"));
@@ -50,15 +51,27 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 // Escuchar
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Listening on ${port}`));
+const server = app.listen(port, () => console.log(`Listening on ${port}`));
+ssocket.createServerSocket(server);
 
-// Users & search route
+// No permitir actividad sin un login
+// app.get("*", (req, res, next) => {
+//   if (!req.user) {
+//     res.render("login", getRenderArguments(req.user));
+//   } else {
+//     next();
+//   }
+// });
+
+// Routes
 const users = require("./routes/users");
 const search = require("./routes/search");
 const films = require("./routes/films");
+const admin = require("./routes/admin");
 app.use("/users", users);
 app.use("/search", search);
 app.use("/films", films);
+app.use("/admin", admin);
 
 // Retorna los parsers disponibles
 app.get("/parsers", (req, res) => {

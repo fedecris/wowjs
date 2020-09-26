@@ -26,12 +26,14 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "express-validator": "^6.6.1",
+    "gunzip-file": "^0.1.1",
     "jsdom": "^16.4.0",
     "line-reader": "^0.4.0",
     "mongodb": "^3.6.0",
     "node-fetch": "^2.6.0",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "socket.io": "^2.3.0"
   }
 }
