@@ -5,8 +5,12 @@ const router = express.Router();
 const { processTSV } = require("../tsvManager");
 
 // Pagina de historial de consultas
-router.get("/", async (req, res) => {
-  res.render("admin", getRenderArguments(req.user));
+router.get("/", async (req, res, next) => {
+  if (!req.user) {
+    res.render("login", getRenderArguments(req.user));
+  } else {
+    res.render("admin", getRenderArguments(req.user));
+  }
 });
 
 // Gestionar el maestro de films (FilmBasic)
