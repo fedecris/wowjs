@@ -1,7 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
-const passport = require("passport");
 const { getRenderArguments } = require("../common");
 const db = require("../db");
 const router = express.Router();

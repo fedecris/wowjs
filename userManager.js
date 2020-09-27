@@ -1,7 +1,7 @@
 const db = require("./db");
 const bcrypt = require("bcryptjs");
 
-/** Permite la registracion de un usuario desde terminal */
+/** Permite la registracion de un usuario desde terminal (CLI) */
 if (process.argv.length < 5) {
   console.error("Debe especificar 1) nombre, 2) email y 3) password");
   process.exit(1);

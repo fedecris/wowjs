@@ -1,18 +1,16 @@
 const lineReader = require("line-reader");
 const db = require("./db");
-const zlib = require("zlib");
 const https = require("https");
 const fs = require("fs");
 const gunzip = require("gunzip-file");
-const { getIO } = require("./index");
 const ssocket = require("./ssocket");
-const { resolve } = require("path");
+require("dotenv").config();
 
 // Queue Name
 const QUEUE_IMPORT = "importTSV";
 
 // URL destino
-const TARGET_URL = "https://datasets.imdbws.com/title.basics.tsv.gz";
+const TARGET_URL = `${process.env.FILM_BASICS_URL}`;
 // Archivo temporal (gz)
 const TEMP_FILE = "/tmp/basics.tsv.gz";
 // Archivo temporal (tsv)
@@ -25,7 +23,7 @@ async function processTSV() {
 
     logActivity(`Downloading from ${TARGET_URL}...`);
     const file = fs.createWriteStream(TEMP_FILE);
-    https.get(TARGET_URL, function (response) {
+    let req = https.get(TARGET_URL, function (response) {
       // Escribir response al file system
       response.pipe(file);
       response.on("end", () => {
@@ -37,8 +35,13 @@ async function processTSV() {
         });
       });
     });
+    req.end();
+    req.on("error", (error) => {
+      logActivityEnd(`Error fetching file: ${error}`);
+      return;
+    });
   } catch (err) {
-    logActivity(`Error while processing: ${err}`);
+    logActivityEnd(`Error while processing: ${err}`);
   }
 }
 
@@ -71,7 +74,7 @@ async function importTSV(fileName) {
     // Si no es una pelicula, pero es la ultima, notificar fin de la actividad
     if (!isMovie) {
       if (last) {
-        logActivity("Ready");
+        logActivityEnd(`Finished! ${filmCount} films imported.`);
       }
       return;
     }
@@ -87,7 +90,7 @@ async function importTSV(fileName) {
 
     // Ultima linea?
     if (last) {
-      logActivity("Ready");
+      logActivityEnd(`Finished! ${filmCount} films imported.`);
       return;
     }
   });
@@ -96,6 +99,11 @@ async function importTSV(fileName) {
 // Registrar actividad en log y via socket
 function logActivity(content) {
   ssocket.sendStatus(QUEUE_IMPORT, content);
+}
+
+// Registrar actividad en log y via socket
+function logActivityEnd(content) {
+  ssocket.sendStatusEnd(QUEUE_IMPORT, content);
 }
 
 module.exports = { processTSV };

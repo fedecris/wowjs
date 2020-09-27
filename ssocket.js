@@ -9,17 +9,28 @@ function createServerSocket(server) {
   io.sockets.on("connection", (aSocket) => {
     theSocket = aSocket;
     console.log(`New Connection: ${aSocket.id}`);
-    if (lastStatus) sendStatus(lastStatus.queue, lastStatus.content);
+    if (lastStatus)
+      send(lastStatus.queue, lastStatus.content, lastStatus.finished);
   });
 }
 
 // Envio de estado
-function sendStatus(queue, content) {
-  lastStatus = { queue: queue, content: content };
-  //console.log(`Sending data: ${queue} - ${content}`);
+function send(queue, content, finished) {
+  lastStatus = { queue: queue, content: content, finished: finished };
+  console.log(`Sending data: ${queue} - ${content} - ${finished}`);
   if (theSocket) {
-    theSocket.emit(queue, content);
+    theSocket.emit(queue, lastStatus);
   }
 }
 
-module.exports = { createServerSocket, sendStatus };
+// Envio de estado, proceso no finalizado
+function sendStatus(queue, content) {
+  send(queue, content, false);
+}
+
+// Envio de estado finalizado (error o ok)
+function sendStatusEnd(queue, content) {
+  send(queue, content, true);
+}
+
+module.exports = { createServerSocket, sendStatus, sendStatusEnd };

@@ -1,19 +1,12 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const fs = require("fs");
-const db = require("./db");
 require("dotenv").config();
-const fetch = require("node-fetch");
-const jsdom = require("jsdom");
-const { info } = require("console");
 const passport = require("passport");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const expressSession = require("express-session");
 const app = express();
-const ejs = require("ejs");
 const path = require("path");
-const { getRenderArguments, getParsersList } = require("./common");
+const { getParsersList } = require("./common");
 const ssocket = require("./ssocket");
 
 // Use flash
@@ -43,11 +36,6 @@ app.set("view engine", "ejs");
 require("./config/passport")(passport);
 app.use(passport.initialize());
 app.use(passport.session());
-
-// create application/json parser
-const jsonParser = bodyParser.json();
-// create application/x-www-form-urlencoded parser
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 // Escuchar
 const port = process.env.PORT || 3000;

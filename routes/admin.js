@@ -1,5 +1,4 @@
 const express = require("express");
-const db = require("../db");
 const { getRenderArguments } = require("../common");
 const router = express.Router();
 const { processTSV } = require("../tsvManager");
