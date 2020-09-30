@@ -148,6 +148,7 @@ async function findFilmBasic(criteria) {
         },
         { $sort: { field_length: 1 } },
       ])
+      .sort({ title: 1 })
       .limit(10));
   if (err) {
     /* Ignore */
