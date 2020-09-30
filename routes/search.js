@@ -111,7 +111,7 @@ router.get("/:name", urlencodedParser, async (req, res) => {
   const year = req.query.year;
   const parser = getParserFromName(req.params.name);
   // Determinar enlace
-  const url = await sitesSearch.resolveFor(title, year, parser);
+  const url = await getSitesSearch().resolveFor(title, year, parser);
   if (url == null) {
     res.json({ parser: parser.getName(), error: "No matches" });
     return;

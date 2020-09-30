@@ -6,7 +6,6 @@ const cookieParser = require("cookie-parser");
 const expressSession = require("express-session");
 const app = express();
 const path = require("path");
-const { getParsersList } = require("./common");
 const ssocket = require("./ssocket");
 
 // Use flash
@@ -56,15 +55,12 @@ const users = require("./routes/users");
 const search = require("./routes/search");
 const films = require("./routes/films");
 const admin = require("./routes/admin");
+const api = require("./routes/api");
 app.use("/users", users);
 app.use("/search", search);
 app.use("/films", films);
 app.use("/admin", admin);
-
-// Retorna los parsers disponibles
-app.get("/parsers", (req, res) => {
-  res.json(getParsersList());
-});
+app.use("/api", api);
 
 // Redireccionar por defecto a busquedas
 app.get("/", async (req, res) => {

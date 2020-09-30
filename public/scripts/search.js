@@ -29,7 +29,7 @@ function appendParsersToDOM(name) {
 
 // Mostrar en pantalla los parsers disponibles
 async function getParsers() {
-  const response = await fetch("/parsers");
+  const response = await fetch("/api/parsers");
   parsers = await response.json();
   const subtitulo = document.getElementById("subtitulo");
   subtitulo.textContent = `Current sources: ${parsers.names}`;
