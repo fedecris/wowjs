@@ -162,6 +162,7 @@ async function checkStatus() {
       if (data.length == parsers.names.length) {
         recall = false;
         checks = 0;
+        displayChart(data);
       }
     }
     if (checks >= 10) {
