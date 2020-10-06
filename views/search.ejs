@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/styles/extensions.css">
   </head>
   <body>
+    <a href="" name="top" id="top"></a>
     <div class="w3-container" id="where" style="padding-bottom: 32px">
       <div class="w3-content" style="max-width: 700px">
         <%- include ('menu.ejs') %>
@@ -68,32 +69,41 @@
     </div>
     <div class="w3-container" id="where" style="padding-bottom: 32px">
       <div class="w3-content" id="parsersList" style="max-width: 700px">
-        <h3 id="results">Results</h3>
+        <h3 id="results">Results <a href=#top style="text-decoration: none">&#9650;</a></h3>
         <span id="cachedText" style="color: blue"> </span> <input class="w3-button w3-black" type="button" value="Refresh" id="refreshButton" onclick="doIt(true)">
         <!-- Parser list here (dinamycally loaded) -->
       </div>
     </div>
-
-    <div style="max-width:500px; margin:0 auto;">
-      <div class="chart-container" style="position: relative; height: 10vh; width: 30vw">
+    <div style="width:500px; height: 700px; margin:0 auto;">
+      <div class="chart-container" style="position: relative; height: 3vh; width: 30vw">
         <canvas id="myChart" width="200" height="200"></canvas>
       </div>
     </div>
+    <a href="" name="info" id="info"></a>
     <script>
       // Cargar la info
       loadInfo();
 
+      // Ocultar el chart hasta que se cargue la info correspondiente
+      function hideChart() {
+        document.getElementById("myChart").style.visibility='hidden';
+      }
+
       // Render chart of a movie's public & critics score
-      function displayChart(data) {    
+      function displayChart(data) {
+        document.getElementById("myChart").style.visibility='visible';    
         let rt = data.filter((parser) => {
           return parser.parser == "RT";
         });
         let imdb = data.filter((parser) => {
           return parser.parser == "IMDb";
         });      
-        let rtScore = parseFloat(rt[0].criticsScore) / 10;
-        let imdbScore = parseInt(imdb[0].publicScore);
-        
+        let rtScore = 0;
+        let imdbScore = 0;
+        try {
+          rtScore = parseFloat(rt[0].criticsScore) / 10;
+          imdbScore = parseInt(imdb[0].publicScore);
+        } catch (error) { /* No score data retrieved. */ }
         var ctx = document.getElementById("myChart").getContext("2d");
         var myChart = new Chart(ctx, {
           type: "bar",

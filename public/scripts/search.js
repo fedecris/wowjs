@@ -76,6 +76,9 @@ let checks = 0;
 async function doIt(force) {
   setError("");
   setCached("");
+  hideChart();
+  let anchor = "" + window.location;
+  window.location = anchor.replace("#info", "") + "#info";
   // Registrar el pedido
   const title = document.getElementById("title").value;
   const year = document.getElementById("year").value;
