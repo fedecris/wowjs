@@ -68,6 +68,12 @@ function setCached(cached) {
   document.getElementById("refreshButton").disabled = cached == "";
 }
 
+function setResultTitle(title, year) {
+  document.getElementById(
+    "resultsTitle"
+  ).innerHTML = `Results for ${title} (${year})`;
+}
+
 // ===== Funciones relacioandas con la consulta =====
 let requestID = -1;
 let checks = 0;
@@ -78,10 +84,11 @@ async function doIt(force) {
   setCached("");
   hideChart();
   let anchor = "" + window.location;
-  window.location = anchor.replace("#info", "") + "#info";
+  window.location = anchor.replace("#info", "").replace("#top", "") + "#info";
   // Registrar el pedido
   const title = document.getElementById("title").value;
   const year = document.getElementById("year").value;
+  setResultTitle(title, year);
   query(title, year, force ? 1 : 0);
 }
 
