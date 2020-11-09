@@ -16,7 +16,7 @@ let db = null;
 // Use connect method to connect to the server
 async function connect() {
   if (db && db.serverConfig.isConnected()) return;
-  console.log("Connecting...");
+  console.log(`Connecting to ${url}...`);
   err,
     (client = await MongoClient.connect(url, {
       useNewUrlParser: true,
