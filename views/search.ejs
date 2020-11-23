@@ -103,7 +103,7 @@
         let imdbScore = 0;
         try {
           rtScore = parseFloat(rt[0].criticsScore) / 10;
-          imdbScore = parseInt(imdb[0].publicScore);
+          imdbScore = parseFloat(imdb[0].publicScore);
         } catch (error) { /* No score data retrieved. */ }
         var ctx = document.getElementById("myChart").getContext("2d");
         var myChart = new Chart(ctx, {
