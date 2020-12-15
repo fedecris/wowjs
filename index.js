@@ -41,15 +41,6 @@ const port = process.env.PORT || 3000;
 const server = app.listen(port, () => console.log(`Listening on ${port}`));
 ssocket.createServerSocket(server);
 
-// No permitir actividad sin un login
-// app.get("*", (req, res, next) => {
-//   if (!req.user) {
-//     res.render("login", getRenderArguments(req.user));
-//   } else {
-//     next();
-//   }
-// });
-
 // Routes
 const users = require("./routes/users");
 const search = require("./routes/search");
